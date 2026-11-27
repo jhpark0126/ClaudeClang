@@ -1,0 +1,9 @@
+Wiper Control SW Requirements (BCM)
+
+WIP-REQ-01: When the wiper switch is in INT position, the wiper shall perform one wipe cycle every interval T_int. T_int is selected by the INT volume knob: position 1 = 10 s, 2 = 7 s, 3 = 5 s, 4 = 3 s, 5 = 1 s.
+WIP-REQ-02: When the wiper switch is in LO, the wiper motor shall run continuously at low speed (40 ± 3 cycles/min). In HI, high speed (60 ± 3 cycles/min).
+WIP-REQ-03: When vehicle speed is above 120 km/h and the switch is in LO, the wiper shall operate at high speed. Below or equal to 110 km/h it shall return to the speed selected by the switch. (hysteresis)
+WIP-REQ-04: When the switch is moved to OFF, the wiper shall complete the current cycle and stop at the park position.
+WIP-REQ-05: If the park switch signal is not detected within 3 s after a wipe cycle starts, the SW shall stop the motor and set DTC B1B0101. (motor lock protection)
+WIP-REQ-06: The wiper shall respond to the washer switch appropriately.
+WIP-REQ-07: The SW shall read the wiper switch input every 20 ms and debounce it over 3 consecutive samples.

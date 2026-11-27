@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: hvac-default-format
+expected_outcome: |
+  An .xlsx with separate functional and non-functional sheets in the default column set
+  (TC ID, basis ID, purpose, inputs, procedure, expected output, technique), covering all
+  8 requirements with concrete values; boundary values 15.5/16.0/32.0/32.5 and 7/8 are tested,
+  the mode/fan/A-C/IGN combinations are derived with PICT, edge cases are labeled "WoW 검증",
+  and suggested cases are marked "제안".
+context:
+  scaffold_script: place-files.sh

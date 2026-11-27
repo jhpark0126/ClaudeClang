@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: wiper-company-template
+expected_outcome: |
+  An .xlsx built on the company template's columns, with functional and non-functional
+  sheets, a traceability matrix covering WIP-REQ-01..07, BVA on the 110/120 km/h hysteresis
+  and the 3 s park timeout, and the vague WIP-REQ-06 (washer "appropriately") reported as an
+  open question instead of being given invented expected values.
+context:
+  scaffold_script: place-files.sh
