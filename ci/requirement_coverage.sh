@@ -8,7 +8,7 @@
 #
 # 판정
 #   1) iteration <= N 인 요구사항은 모두 system_test 가 연결되어야 한다 (커버리지 100%).
-#   2) trace.csv 의 oem_id 는 요구사항 목록에 있어야 한다 (고아 추적 금지).
+#   2) trace.csv 의 oem_id 는 요구사항 목록에 있어야 한다 (고아 추적 금지). 단 "-" 는 OEM 요구가 아닌 요구(제한·제약)용이다.
 #   3) 완료 이터레이션의 요구사항은 swr_id, design, code, unit_test 도 비어 있으면 안 된다 (양방향 추적).
 # 한계: system_test 값이 실제 시험 문서에 존재하는지는 검사하지 않는다 (리뷰어가 확인).
 set -u
@@ -39,6 +39,7 @@ awk -F, -v done="$done_iter" -v req="$REQ" -v out="$REPORT_DIR/requirement_cover
     FNR == 1 { next }
     {
         id = trim($1)
+        if (id == "-") next   # 상위가 OEM 요구가 아닌 요구(제한·제약): 고아 검사 제외
         if (!(id in known)) { printf "[고아 추적] %s 는 요구사항 목록에 없습니다.\n", id; bad++; next }
         if (trim($7) != "") sys[id] = 1
         if (trim($2) == "" || trim($3) == "" || trim($4) == "" || trim($5) == "") incomplete[id] = 1
