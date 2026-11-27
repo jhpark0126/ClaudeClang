@@ -16,9 +16,11 @@
 /** 필수 입력별 허용 최댓값. 최솟값은 모두 0이다. (OEM-IF-002, 003, 009) */
 static const int32_t k_max_value[CL_IN_COUNT] = {2, 1, 1, 1, 1};
 
-/** 운전자 요청 필드의 허용 최댓값. (OEM-IF-004) */
+/** 운전자 요청 side의 허용 최댓값. (OEM-IF-004) */
 #define REQUEST_SIDE_MAX 2
+/** 운전자 요청 action의 허용 최댓값. (OEM-IF-004) */
 #define REQUEST_ACTION_MAX 1
+/** 운전자 요청 source의 허용 최댓값(0~3: 버튼, AVN, 음성, 앱). (OEM-IF-004) */
 #define REQUEST_SOURCE_MAX 3
 
 /**

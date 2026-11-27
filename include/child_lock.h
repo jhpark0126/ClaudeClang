@@ -25,9 +25,9 @@ extern "C"
     /** 제어 컨텍스트. 호출자가 소유하고, 필드는 child_lock과 각 하위 모듈만 해석한다. */
     typedef struct
     {
-        input_validator_state_t validator;
-        safety_arbiter_state_t arbiter;
-        cl_lock_t previous[CL_DOOR_COUNT];
+        input_validator_state_t validator; /**< 입력 검증기 상태 */
+        safety_arbiter_state_t arbiter;    /**< 안전 판단기 상태 */
+        cl_lock_t previous[CL_DOOR_COUNT]; /**< 직전 확정 출력 */
     } cl_ctx_t;
 
     /**

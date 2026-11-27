@@ -27,12 +27,17 @@ extern "C"
 /** 평가주기 [ms] (SWR-L-001, 가정 A-03). */
 #define CL_EVAL_PERIOD_MS 10U
 
-/** 이유코드 비트 (가정 A-10, A-21). */
+/** 이유코드 비트: 충돌 PENDING을 받았다. (가정 A-07, A-10) */
 #define CL_REASON_CRASH_PENDING (1U << 0)
+/** 이유코드 비트: 접근위험으로 도어를 LOCK했다. (가정 A-21) */
 #define CL_REASON_APPROACH_RISK_LOCK (1U << 1)
+/** 이유코드 비트: 접근위험 도어에 대한 해제 요청을 억제했다. */
 #define CL_REASON_APPROACH_RISK_SUPPRESS (1U << 2)
+/** 이유코드 비트: 접근위험 입력이 INVALID 또는 STALE이다. (가정 A-18) */
 #define CL_REASON_APPROACH_INPUT_UNRELIABLE (1U << 3)
+/** 이유코드 비트: 점화 OFF로 해제했다. */
 #define CL_REASON_IGNITION_OFF (1U << 4)
+/** 경고코드 비트: sensor_fault가 TRUE이다. */
 #define CL_REASON_SENSOR_FAULT (1U << 5)
 
     /** 함수 상태 코드. */
@@ -128,37 +133,37 @@ extern "C"
     /** 원시 입력 필드 하나. present가 1이고 value가 허용 범위일 때만 유효하다. */
     typedef struct
     {
-        int32_t present;
-        int32_t value;
+        int32_t present; /**< 1이면 수신됨, 그 밖의 값은 누락 또는 형식 오류 */
+        int32_t value;   /**< 수신한 원시 값 */
     } cl_field_raw_t;
 
     /** 한 주기에 수신한 원시 입력 스냅샷. */
     typedef struct
     {
-        cl_field_raw_t field[CL_IN_COUNT];
-        int32_t request_present;
-        int32_t request_side;
-        int32_t request_action;
-        int32_t request_source;
+        cl_field_raw_t field[CL_IN_COUNT]; /**< 필수 입력(cl_input_id_t 인덱스) */
+        int32_t request_present;           /**< 1이면 운전자 요청이 있음 */
+        int32_t request_side;              /**< 요청 대상(cl_side_t 범위 0~2) */
+        int32_t request_action;            /**< 요청 동작(cl_action_t 범위 0~1) */
+        int32_t request_source;            /**< 요청 경로(0~3: 버튼, AVN, 음성, 앱) */
     } cl_raw_input_t;
 
     /** 검증을 마친 입력. value는 VALID일 때만 의미가 있고 아니면 0이다. */
     typedef struct
     {
-        cl_validity_t validity[CL_IN_COUNT];
-        int32_t value[CL_IN_COUNT];
-        int32_t request_valid;
-        cl_side_t request_side;
-        cl_action_t request_action;
+        cl_validity_t validity[CL_IN_COUNT]; /**< 입력별 유효성 */
+        int32_t value[CL_IN_COUNT];          /**< 입력별 값(VALID일 때만 의미, 아니면 0) */
+        int32_t request_valid;               /**< 1이면 운전자 요청이 유효함 */
+        cl_side_t request_side;              /**< 유효한 요청의 대상 */
+        cl_action_t request_action;          /**< 유효한 요청의 동작 */
     } cl_validated_t;
 
     /** 한 평가주기의 결과. */
     typedef struct
     {
-        cl_lock_t lock[CL_DOOR_COUNT];
-        cl_state_t state;
-        uint32_t reason_mask;
-        cl_validity_t validity[CL_IN_COUNT];
+        cl_lock_t lock[CL_DOOR_COUNT];       /**< 도어별 최종 출력 */
+        cl_state_t state;                    /**< 공개 상태 */
+        uint32_t reason_mask;                /**< 이유·경고코드 비트마스크 */
+        cl_validity_t validity[CL_IN_COUNT]; /**< 입력별 유효성(조회용) */
     } cl_result_t;
 
 #ifdef __cplusplus

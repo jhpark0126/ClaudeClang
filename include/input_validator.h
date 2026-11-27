@@ -22,16 +22,16 @@ extern "C"
     /** 입력 하나의 검증 상태. 필드는 input_validator만 읽고 쓴다. */
     typedef struct
     {
-        int32_t last_value;
-        uint32_t last_valid_ms;
-        int32_t has_valid;
-        int32_t last_was_bad;
+        int32_t last_value;     /**< 마지막 유효 값 */
+        uint32_t last_valid_ms; /**< 마지막 유효 수신 시각 [ms] */
+        int32_t has_valid;      /**< 1이면 유효 값을 한 번 이상 받음 */
+        int32_t last_was_bad;   /**< 1이면 마지막 수신이 불량임 */
     } input_entry_t;
 
     /** 검증기 상태. 필드는 input_validator만 읽고 쓴다. */
     typedef struct
     {
-        input_entry_t entry[CL_IN_COUNT];
+        input_entry_t entry[CL_IN_COUNT]; /**< 필수 입력별 상태 */
     } input_validator_state_t;
 
     /**

@@ -22,15 +22,15 @@ extern "C"
     /** 안전 판단기 상태. 필드는 safety_arbiter만 읽고 쓴다. */
     typedef struct
     {
-        int32_t crash_latched;
+        int32_t crash_latched; /**< 1이면 충돌 CONFIRMED 래치가 섰음 */
     } safety_arbiter_state_t;
 
     /** 안전 판단 결과. */
     typedef struct
     {
-        cl_directive_t directive[CL_DOOR_COUNT];
-        cl_health_t health;
-        uint32_t reason_mask;
+        cl_directive_t directive[CL_DOOR_COUNT]; /**< 도어별 안전 지시 */
+        cl_health_t health;                      /**< 시스템 건전성 */
+        uint32_t reason_mask;                    /**< 안전 판단의 이유코드 비트 */
     } safety_decision_t;
 
     /**

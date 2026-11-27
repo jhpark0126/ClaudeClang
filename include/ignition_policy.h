@@ -22,7 +22,7 @@ extern "C"
     /** QM 해제 제안. */
     typedef struct
     {
-        int32_t release_all;
+        int32_t release_all; /**< 1이면 점화 OFF로 전체 해제를 제안함 */
     } ignition_proposal_t;
 
     /**
