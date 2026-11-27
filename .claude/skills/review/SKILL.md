@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use when reviewing any work product (requirements, architecture, detailed design, code, unit tests, integration tests) under A-SPICE, or when creating or updating a review checklist for a work product. 리뷰, 체크리스트, 산출물 검토.
+description: Use when reviewing any work product (requirements, architecture, detailed design, code, unit tests, integration tests, system tests) under A-SPICE, or when creating or updating a review checklist for a work product. 리뷰, 체크리스트, 산출물 검토.
 ---
 
 # 리뷰 (A-SPICE 검증 활동)
@@ -26,6 +26,7 @@ description: Use when reviewing any work product (requirements, architecture, de
 | 소스 코드 | `checklists/code.md` | SWE.3 |
 | 단위 시험 | `checklists/unit-test.md` | SWE.4 |
 | 통합 시험 | `checklists/integration-test.md` | SWE.5 |
+| 시스템 시험 | `checklists/system-test.md` | SWE.6 |
 
 체크리스트는 `.claude/skills/review/checklists/` 에 있다.
 
