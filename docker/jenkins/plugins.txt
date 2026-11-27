@@ -1,0 +1,26 @@
+# 파이프라인
+workflow-aggregator
+workflow-multibranch
+branch-api
+cloudbees-folder
+pipeline-stage-view
+pipeline-graph-view
+# 소스 관리
+git
+github-branch-source
+# 설정을 코드로 (JCasC) + 잡 생성
+configuration-as-code
+job-dsl
+# 결과 확인용: 테스트, 정적 분석, 커버리지, HTML 리포트
+junit
+warnings-ng
+coverage
+htmlpublisher
+# 편의
+timestamper
+ansicolor
+build-timeout
+ws-cleanup
+credentials-binding
+matrix-auth
+antisamy-markup-formatter

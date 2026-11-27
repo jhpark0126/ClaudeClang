@@ -1,0 +1,48 @@
+jenkins:
+  systemMessage: "ClaudeClang CI (Jenkins LTS)"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+
+jobs:
+  - script: |
+      // Gitflow 브랜치(develop, feature/*, release/*, hotfix/*, main)를 모두 찾아 각각 빌드한다.
+      multibranchPipelineJob('ClaudeClang') {
+        displayName('ClaudeClang')
+        branchSources {
+          branchSource {
+            source {
+              git {
+                id('claudeclang-git')
+                remote('https://github.com/jhpark0126/ClaudeClang.git')
+              }
+            }
+          }
+        }
+        factory {
+          workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+          }
+        }
+        orphanedItemStrategy {
+          discardOldItems {
+            numToKeep(20)
+          }
+        }
+        triggers {
+          periodicFolderTrigger {
+            interval('2m')
+          }
+        }
+      }
