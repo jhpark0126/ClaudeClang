@@ -17,15 +17,24 @@ Status Limiter_Clamp(int32_t value, int32_t low, int32_t high, int32_t *out)
 {
     Status status = STATUS_OK;
 
-    if (out == NULL) {
+    if (out == NULL)
+    {
         status = STATUS_ERR_NULL_PTR;
-    } else if (low > high) {
+    }
+    else if (low > high)
+    {
         status = STATUS_ERR_RANGE;
-    } else if ((value >= low) && (value <= high)) {
+    }
+    else if ((value >= low) && (value <= high))
+    {
         *out = value;
-    } else if (value < low) {
+    }
+    else if (value < low)
+    {
         *out = low;
-    } else {
+    }
+    else
+    {
         *out = high;
     }
 

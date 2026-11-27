@@ -33,7 +33,7 @@ inc=()
 [ -d "$PROJECT_DIR/src" ]     && inc+=("-I$PROJECT_DIR/src")
 
 cppcheck --enable="$CPPCHECK_ENABLE" --error-exitcode=1 --library=googletest \
-    --std=c++20 "${inc[@]}" \
+    --std=c17 --std=c++20 "${inc[@]}" \
     --xml --xml-version=2 \
     $(existing_dirs "${ALL_SOURCE_DIRS[@]}") 2> "$REPORT_DIR/cppcheck.xml"
 rc=$?

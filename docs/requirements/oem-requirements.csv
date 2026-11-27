@@ -1,0 +1,14 @@
+id,class,asil,iteration,title
+OEM-SR-001,safety,ASIL B,1,충돌 CONFIRMED 시 300ms 이내 좌우 해제 (최우선)
+OEM-SR-002,safety,ASIL B,1,후측방 접근위험 도어 잠금 및 해제 요청 억제
+OEM-SR-003,safety,ASIL B,1,입력 유효성 및 freshness 검증 (200ms 초과 시 100ms 내 DEGRADED)
+OEM-SR-004,safety,ASIL B,1,sensor_fault 시 새 명령 미적용 및 직전 출력 유지
+OEM-FR-001,function,QM,2,물리버튼/AVN/음성/모바일앱 명령 처리 (좌/우/전체)
+OEM-FR-002,function,QM,2,3km/h 이상 이동 시 자동 잠금
+OEM-FR-003,function,QM,2,접근위험 경고 후 10초 이하 재입력 override
+OEM-FR-004,function,QM,3,상태 조회 인터페이스 제공
+OEM-FR-005,function,QM,2,화재/과온/성인 탑승 시 강제 해제
+OEM-FR-006,function,QM,2,ISOFIX 연결 시 해당 도어 강제 잠금
+OEM-FR-007,function,QM,1,ignition_on FALSE 시 해제 및 OFF 상태
+OEM-NFR-001,nonfunctional,QM,4,동일 입력 순서에 동일 결과 (결정론)
+OEM-NFR-002,nonfunctional,QM,3,최근 결정 100건 메모리 보존 (개인정보 금지)

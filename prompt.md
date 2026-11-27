@@ -90,3 +90,19 @@
 - 구현 종료 시 Lizard를 검사하는 Stop 훅(`.claude/settings.json`) 추가 및 동작 확인.
 - 문제와 해결: (1) Doxygen 자가 검증 변형이 경고를 유발하지 못함 → 변형 수정, (2) Jenkins가 브랜치를 발견하지 못함 → 브랜치 탐색 trait 추가, (3) 재시작 시 빌드가 중복 예약되어 #1 로그가 깨짐 → 재시작 직후 경쟁 상태로 판단, #2부터 정상.
 - `gh` CLI가 없어 PR은 만들지 못함. 미확정 사항을 `CLAUDE.md`에 기록함.
+
+## 11. OEM 요구사항 검토와 개발 계획
+**프롬프트:** OEM-SWR-001 사양서를 검토하고 개발 계획을 제시해. 내가 사전에 검토/승인해야 하는 것을 먼저 알려줘.
+
+**답변 요약:**
+- 사양서 검토: 실행환경(Python)과 우리 환경(C/Clang) 충돌, 요구 간 우선순위 부재, ASIL B(SR-002)와 QM(FR-003 override) 간섭, 평가 주기·DEGRADED 동작·초기 출력 등의 모호점 10건을 정리하고 이터레이션 0~4 계획을 제시함.
+- PR #1(`feature/dev-environment`)을 `develop`에 병합함(`34d87fb`).
+
+## 12. 개발언어 C(Clang) 확정과 환경 정합, 이터레이션 계획
+**프롬프트:** 요구사항 변경으로 개발언어는 CLang으로 확정. CLAUDE.md 기준으로 개발환경 맞춰줘. 저장소는 public 유지, 문서 배포 승인. 나머지는 너의 권고안으로 진행. 이터레이션 계획 다시 제시해.
+
+**답변 요약:**
+- `feature/iteration-0`에서 작업. 제품 코드는 C17만 허용(CMake가 `src/*.cpp`를 거부), 경고를 더 엄격히(-Wpedantic -Wshadow).
+- `.clang-format`과 `ci/format_check.sh`, 요구사항 커버리지 게이트 `ci/requirement_coverage.sh`(요구사항 CSV, 추적 CSV, 완료 이터레이션 기반) 추가. 주석률 기준은 권고값 20%.
+- 게이트 자가 검증 32/32 통과. 분석 가정과 OEM 질의(Q1~Q12)는 `docs/requirements/oem-swr-001-review.md`, 계획은 `docs/plan/iteration-plan.md`.
+- 공개 저장소에 OEM 사양서 docx를 포함함(사용자 승인).

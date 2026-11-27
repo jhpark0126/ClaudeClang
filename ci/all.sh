@@ -12,6 +12,8 @@ stages=(
     "통합 테스트|bash $CI_DIR/run_tests.sh integration"
     "정적 분석(Cppcheck)|bash $CI_DIR/static_analysis.sh"
     "메트릭(Lizard)|bash $CI_DIR/metrics.sh"
+    "요구사항 커버리지|bash $CI_DIR/requirement_coverage.sh"
+    "코드 스타일(clang-format)|bash $CI_DIR/format_check.sh"
     "주석률(CLOC)|bash $CI_DIR/comment_ratio.sh"
     "사람 확인용 태그|bash $CI_DIR/doc_tags.sh"
     "Doxygen|bash $CI_DIR/doxygen.sh"

@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # CLOC: 주석률 = 주석 줄 / (주석 줄 + 코드 줄) * 100.
-# 기준값(COMMENT_RATIO_MIN)은 아직 정해지지 않아 기본 0 = 측정·기록만 하고 판정하지 않는다.
-# 기준이 정해지면 이 기본값을 바꾸면 CI 게이트가 된다.
+# 기준값(COMMENT_RATIO_MIN) 기본 20(%). 사용자 확정 전의 권고값이며 이 한 곳에서만 바꾼다.
 set -u
 . "$(dirname "$0")/common.sh"
 
-COMMENT_RATIO_MIN="${COMMENT_RATIO_MIN:-0}"
+COMMENT_RATIO_MIN="${COMMENT_RATIO_MIN:-20}"
 status=0
 
 if ! has_sources "${PRODUCT_DIRS[@]}"; then

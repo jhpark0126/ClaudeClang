@@ -19,14 +19,17 @@ endif()
 find_package(GTest REQUIRED)
 enable_testing()
 
-# 제품 코드: src/ 아래 모든 .c/.cpp 를 정적 라이브러리로 묶는다.
-file(GLOB_RECURSE PRODUCT_SOURCES CONFIGURE_DEPENDS
-     ${CMAKE_SOURCE_DIR}/src/*.c ${CMAKE_SOURCE_DIR}/src/*.cpp)
+# 제품 코드는 C(Clang, C17)로만 작성한다. C++ 는 시험(GoogleTest/GMock)에만 쓴다.
+file(GLOB_RECURSE PRODUCT_CPP CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
+if(PRODUCT_CPP)
+  message(FATAL_ERROR "제품 코드는 C 로만 작성합니다. src/ 에 .cpp 가 있습니다: ${PRODUCT_CPP}")
+endif()
+file(GLOB_RECURSE PRODUCT_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.c)
 if(PRODUCT_SOURCES)
   add_library(product STATIC ${PRODUCT_SOURCES})
   target_include_directories(product PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
   # 제품 코드는 경고 없이 컴파일되어야 한다 (코드 체크리스트 COD-11)
-  target_compile_options(product PRIVATE -Wall -Wextra -Werror)
+  target_compile_options(product PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Werror)
 endif()
 
 # 시험 묶음은 서로 섞지 않는다. 각각 별도 실행 파일 = 별도 결과 = 별도 커버리지.

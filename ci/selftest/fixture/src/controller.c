@@ -19,9 +19,12 @@ Status Controller_Step(int32_t input, int32_t *output)
 {
     Status status = STATUS_OK;
 
-    if (output == NULL) {
+    if (output == NULL)
+    {
         status = STATUS_ERR_NULL_PTR;
-    } else {
+    }
+    else
+    {
         status = Limiter_Clamp(input, CONTROLLER_MIN, CONTROLLER_MAX, output);
     }
 

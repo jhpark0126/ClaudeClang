@@ -2,7 +2,10 @@
 
 ## 프로젝트 개요
 - 저장소: https://github.com/jhpark0126/ClaudeClang
-- 현재 상태: 개발 환경과 CI는 구성되었고, 제품 소스 코드(`src/`)는 아직 없다.
+- 현재 상태: 개발 환경과 CI는 구성되었고, 제품 소스 코드(`src/`)는 아직 없다. 개발 계획은 `docs/plan/iteration-plan.md`.
+- 개발 대상: OEM 요구사항 `OEM/OEM-SWR-001_OEM SW 요구사항 사양서.docx`의 전자식 차일드락 제어 SW. 저장소는 **public**이며 문서 배포는 사용자가 승인했다.
+- 교육용 가상 프로젝트다. 실제 OEM 승인, Automotive SPICE 능력수준, ISO 26262 준수, 인증, ASIL 달성, 양산 적합성을 주장하지 않는다.
+- 요구사항 분석의 가정과 OEM 질의는 `docs/requirements/oem-swr-001-review.md`에 둔다.
 
 ## 작업 규칙
 - 사용자에게 보이는 답변은 모두 한국어로 작성한다. 코드, 명령어, 파일 경로는 원문 그대로 둔다.
@@ -107,7 +110,7 @@
 
 | 용도 | 도구 | 비고 |
 |---|---|---|
-| 언어 / 컴파일러 | **Clang 18 이상** (최신 버전) | MC/DC(`-fcoverage-mcdc`)에 18 이상이 필요 |
+| 언어 / 컴파일러 | **C17, Clang 18 이상** (최신 버전, 현재 22) | MC/DC(`-fcoverage-mcdc`)에 18 이상이 필요. **제품 코드는 C만**(`src/*.c`), C++는 시험에만 쓴다 |
 | 빌드 도구 | **CMake + Ninja** (추천) | Clang·ctest·커버리지 옵션을 다루기 쉽고 Jenkins 연동이 단순함 |
 | 정적 분석 | Cppcheck | |
 | 테스트 프레임워크 | Google Test / Google Mock | |
@@ -125,6 +128,7 @@
 - 이미지 만들기: `bash scripts/build-image.sh`
 - 개발 중 실행: `bash scripts/dev.sh <명령>` (예: `bash scripts/dev.sh bash ci/all.sh`로 CI 게이트 전체를 로컬에서 실행)
 - 설치된 도구와 버전 확인: `bash scripts/dev.sh tool-versions`
+- 코드 스타일은 저장소 루트 `.clang-format`을 따르고 `ci/format_check.sh`가 검사한다. 정리는 `bash scripts/dev.sh clang-format -i <파일>`.
 - 빌드는 `CMakeLists.txt`(CMake + Ninja)이고, 시험 묶음은 `test/tdd`, `test/unit`, `test/integration`이 각각 별도 실행 파일이다.
 
 ---
@@ -135,6 +139,7 @@
 - CI 파이프라인(`Jenkinsfile`)은 `claudeclangbuild` 이미지 안에서 `ci/*.sh` 게이트를 실행하고, 2장의 품질 기준을 하나라도 어기면 실패시킨다.
 - Jenkins 실행·관리: `bash scripts/jenkins.sh <up|down|logs|status>`. 관리자 ID는 `admin`, 비밀번호는 `docker/.env`(git에 올라가지 않음).
 - 결과 확인: Jenkins의 테스트 결과(JUnit), 정적 분석(Warnings NG의 Cppcheck), 커버리지(Coverage 플러그인), HTML 리포트(단위 MC/DC, 통합 함수 커버리지, Lizard, Doxygen).
+- 요구사항 커버리지 게이트: `ci/requirement_coverage.sh`가 `docs/requirements/oem-requirements.csv`와 `docs/traceability/trace.csv`를 비교한다. 이터레이션을 마치면 `docs/traceability/iteration.txt`의 `completed_iteration`을 올린다.
 - 게이트 자가 검증: `bash scripts/dev.sh bash ci/selftest/selftest.sh` (정상 샘플은 통과, 망가뜨린 샘플은 각 게이트가 실패하는지 확인).
 
 ---
@@ -147,7 +152,8 @@
 - `ci/` — CI 게이트 스크립트 (로컬과 Jenkins가 같이 사용), `ci/selftest/` 게이트 자가 검증
 - `docker/` — 빌드 이미지(`Dockerfile`), Jenkins 이미지와 설정(`jenkins/`), `docker-compose.yml`
 - `scripts/` — 이미지 빌드, 개발 컨테이너 실행, Jenkins 관리, Hook
-- `docs/` — 요구사항, 설계, 리뷰 기록 (`docs/reviews/`)
+- `docs/` — 요구사항(`requirements/`), 개발 계획(`plan/`), 추적 매트릭스(`traceability/`), 설계, 리뷰 기록(`reviews/`)
+- `OEM/` — OEM이 준 입력 문서(수정하지 않는다)
 
 ---
 
@@ -156,10 +162,9 @@
 
 | 항목 | 임시 값 | 바꾸는 곳 |
 |---|---|---|
-| 주석률 기준 | 판정 안 함(측정만, `COMMENT_RATIO_MIN=0`) | `ci/comment_ratio.sh` |
+| 주석률 기준 | 20% (권고값, 사용자 확정 전) | `ci/comment_ratio.sh`의 `COMMENT_RATIO_MIN` |
 | Cppcheck 룰 범위 | `warning,style,performance,portability` | `ci/static_analysis.sh`의 `CPPCHECK_ENABLE` |
-| 제품 코드 언어 | C/C++ 모두 빌드 가능 (테스트는 C++/GoogleTest) | `CMakeLists.txt` |
-| 시스템 테스트 요구사항 커버리지 게이트 | 미구현 (추적 매트릭스 형식 미정) | `ci/` 에 `requirement_coverage.sh` 추가 |
+| OEM 질의 Q1~Q12 | 분석 가정으로 진행 | `docs/requirements/oem-swr-001-review.md` |
 | GitHub 연동(PR 상태 보고, 브랜치 보호) | 미구성 (아래 참조) | Jenkins 자격 증명, GitHub 설정 |
 
 - 로컬 Jenkins(`localhost:8080`)는 GitHub가 직접 호출할 수 없으므로, 지금은 2분 주기로 브랜치를 폴링해 빌드한다. PR의 CI 상태를 GitHub에 보고하고 "CI 통과 시에만 병합"을 강제하려면 GitHub 토큰(PAT)과 브랜치 보호 규칙이 필요하다.

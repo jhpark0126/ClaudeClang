@@ -13,7 +13,8 @@
 #define STATUS_H
 
 /** @brief 함수 실행 결과 상태 코드 */
-typedef enum {
+typedef enum
+{
     STATUS_OK = 0,       /**< 정상 */
     STATUS_ERR_NULL_PTR, /**< NULL 포인터 인자 */
     STATUS_ERR_RANGE     /**< 범위 오류 */

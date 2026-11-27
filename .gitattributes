@@ -5,3 +5,4 @@ Dockerfile text eol=lf
 *.exe binary
 *.xlsx binary
 *.png binary
+*.docx binary

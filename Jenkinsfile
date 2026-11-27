@@ -49,6 +49,12 @@ pipeline {
         stage('메트릭 (Lizard)') {
             steps { catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') { script { inImage(IMAGE, 'bash ci/metrics.sh') } } }
         }
+        stage('요구사항 커버리지') {
+            steps { catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') { script { inImage(IMAGE, 'bash ci/requirement_coverage.sh') } } }
+        }
+        stage('코드 스타일 (clang-format)') {
+            steps { catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') { script { inImage(IMAGE, 'bash ci/format_check.sh') } } }
+        }
         stage('주석률 (CLOC)') {
             steps { catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') { script { inImage(IMAGE, 'bash ci/comment_ratio.sh') } } }
         }

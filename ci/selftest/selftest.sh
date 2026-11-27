@@ -29,7 +29,7 @@ fresh() {  # fresh <이름>: fixture 사본을 새로 만든다
     local d="$WORK/$1"
     mkdir -p "$d"
     cp -r "$HERE/fixture/." "$d/"
-    cp "$REPO/CMakeLists.txt" "$REPO/Doxyfile" "$d/"
+    cp "$REPO/CMakeLists.txt" "$REPO/Doxyfile" "$REPO/.clang-format" "$d/"
     printf '%s' "$d"
 }
 
@@ -46,6 +46,7 @@ check "Lizard"               pass run_ci "$P" metrics.sh
 check "CLOC 주석률"          pass run_ci "$P" comment_ratio.sh
 check "사람 확인용 태그"     pass run_ci "$P" doc_tags.sh
 check "Doxygen"              pass run_ci "$P" doxygen.sh
+check "clang-format"          pass run_ci "$P" format_check.sh
 check "TDD/단위 결과 분리"   pass test -f "$P/build/reports/tdd/results.xml" -a -f "$P/build/reports/unit/results.xml"
 
 echo "== 2. 망가뜨린 샘플: 각 게이트가 실패해야 한다 =="
@@ -149,6 +150,52 @@ check "Doxygen 경고가 있으면 Doxygen 게이트 실패" fail run_ci "$P" do
 P="$(fresh warn)"
 printf '\nstatic int unused_helper(void) { return 0; }\n' >> "$P/src/limiter.c"
 check "컴파일 경고가 있으면 빌드 실패" fail run_ci "$P" build.sh
+
+# (m) 코드 스타일 위반
+P="$(fresh style)"
+printf '
+int   bad_style( int a ){return a;}
+' >> "$P/src/limiter.c"
+check "스타일 위반이면 clang-format 게이트 실패" fail run_ci "$P" format_check.sh
+
+# (n) 제품 코드에 C++ 소스
+P="$(fresh cppsrc)"
+printf 'int x(void) { return 0; }
+' > "$P/src/extra.cpp"
+check "src/ 에 .cpp 가 있으면 빌드 실패" fail run_ci "$P" build.sh
+
+# (o) 주석률 미달
+P="$(fresh comment)"
+check "주석률이 기준 미만이면 CLOC 게이트 실패" fail env COMMENT_RATIO_MIN=99 PROJECT_DIR="$P" bash "$REPO/ci/comment_ratio.sh"
+
+echo "== 3. 요구사항 커버리지 게이트 =="
+req_project() {  # req_project <이름> <완료 이터레이션> <trace 행들...>
+    local d="$WORK/$1" it="$2"; shift 2
+    mkdir -p "$d/docs/requirements" "$d/docs/traceability"
+    printf 'id,class,asil,iteration,title
+R-1,function,QM,1,a
+R-2,function,QM,2,b
+' > "$d/docs/requirements/oem-requirements.csv"
+    printf 'oem_id,swr_id,design,code,unit_test,integration_test,system_test
+' > "$d/docs/traceability/trace.csv"
+    local row; for row in "$@"; do printf '%s
+' "$row" >> "$d/docs/traceability/trace.csv"; done
+    printf 'completed_iteration=%s
+' "$it" > "$d/docs/traceability/iteration.txt"
+    printf '%s' "$d"
+}
+P="$(req_project rq_none 0)"
+check "완료 이터레이션 0이면 대상 없음으로 통과"            pass run_ci "$P" requirement_coverage.sh
+P="$(req_project rq_ok 1 'R-1,S-1,D-1,c.c,UT-1,IT-1,ST-1')"
+check "완료 이터레이션의 요구사항이 모두 시험되면 통과"     pass run_ci "$P" requirement_coverage.sh
+P="$(req_project rq_miss 1 'R-1,S-1,D-1,c.c,UT-1,IT-1,')"
+check "system_test 가 없으면 요구사항 커버리지 실패"        fail run_ci "$P" requirement_coverage.sh
+P="$(req_project rq_none_row 1)"
+check "추적 행이 아예 없으면 요구사항 커버리지 실패"        fail run_ci "$P" requirement_coverage.sh
+P="$(req_project rq_orphan 1 'R-1,S-1,D-1,c.c,UT-1,IT-1,ST-1' 'R-9,S-9,D,c,U,I,S')"
+check "목록에 없는 요구사항 추적(고아)이면 실패"            fail run_ci "$P" requirement_coverage.sh
+P="$(req_project rq_gap 1 'R-1,S-1,,c.c,UT-1,IT-1,ST-1')"
+check "design 이 비어 있으면 양방향 추적 누락으로 실패"     fail run_ci "$P" requirement_coverage.sh
 
 echo
 echo "== 결과: 성공 ${pass}, 실패 ${failcount} =="
