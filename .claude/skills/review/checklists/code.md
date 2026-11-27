@@ -12,6 +12,11 @@
 | COD-07 | 모든 입력 포인터·범위를 검증하고 실패 경로가 처리된다. | 견고성 |
 | COD-08 | 이름이 명확하고 매직 넘버가 없으며 함수가 작다. | 클린코드 |
 | COD-09 | 공개 함수에 Doxygen(`@brief`, `@param`, `@return` 전체 상태 코드)이 있다. | 프로젝트 규칙 |
+| COD-09a | 모든 소스 파일과 공개 함수에 사람 확인용 태그(`@generated_by`, `@generated_at`, `@requested_by`, `@human_review`, `@reviewed_by`, `@reviewed_at`)가 있고 값이 실제 값이다. | CLAUDE.md 2.4 |
+| COD-09b | `@human_review: done`인 곳은 사용자가 리뷰 완료를 알린 기록(`@reviewed_by`, `@reviewed_at`)이 있다. 근거 없이 `done`인 곳이 없다. | CLAUDE.md 2.4 |
 | COD-10 | 파일/함수에 설계 ID(`MOD`, `FUNC`)가 적혀 있다. | 추적성 |
-| COD-11 | 컴파일 경고가 없고 정적 분석 결과가 처리되었다. | SWE.3 BP: 검증 |
+| COD-11 | 컴파일 경고가 없다. | SWE.3 BP: 검증 |
+| COD-11a | `cppcheck`를 실행해 지적 사항이 0건이다. 억제 주석(`cppcheck-suppress`)이나 룰 비활성화가 없다 (예외 없음). | CLAUDE.md 2.2 |
+| COD-11b | `lizard -C 10 -L 80`을 실행해 순환복잡도 10 초과, 80라인 초과 함수가 없다. | CLAUDE.md 2.3 |
 | COD-12 | 주석이 코드의 내용이 아니라 이유를 설명한다. | 클린코드 |
+| COD-13 | TDD 테스트가 `test/tdd/`에 있고 단위 테스트(`test/unit/`)와 섞이지 않았다. | CLAUDE.md 1.4 |

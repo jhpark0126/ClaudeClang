@@ -1,0 +1,13 @@
+# 빌드 산출물과 CI 리포트
+build/
+*.profraw
+*.profdata
+
+# Jenkins 관리자 비밀번호 등 로컬 비밀 값
+docker/.env
+
+# 에디터/OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,7 @@
+# 줄바꿈은 항상 LF로 둔다 (Docker/Jenkins/셸 스크립트가 리눅스에서 실행되므로)
+* text=auto eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.exe binary
+*.xlsx binary
+*.png binary

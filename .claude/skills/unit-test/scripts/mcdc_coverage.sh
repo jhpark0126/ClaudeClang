@@ -6,6 +6,8 @@
 #   시험.c : main()을 가진 시험 드라이버
 #
 # 환경변수: CLANG, LLVM_PROFDATA, LLVM_COV 로 도구 경로를 바꿀 수 있다.
+#           EXTRA_FLAGS 로 추가 컴파일/링크 옵션을 넘긴다 (예: Google Test).
+#           예) CLANG=clang++ EXTRA_FLAGS="-Iinclude -lgtest -lgtest_main -pthread" bash mcdc_coverage.sh ...
 # 요구 사항: clang 18 이상 (-fcoverage-mcdc)
 
 set -u
@@ -16,6 +18,7 @@ OUT="${3:-build/mcdc}"
 CLANG="${CLANG:-clang}"
 LLVM_PROFDATA="${LLVM_PROFDATA:-llvm-profdata}"
 LLVM_COV="${LLVM_COV:-llvm-cov}"
+EXTRA_FLAGS="${EXTRA_FLAGS:-}"
 
 status=0
 
@@ -41,8 +44,10 @@ if [ "$status" -eq 0 ]; then
     esac
 
     # 계측 빌드: 라인/분기 커버리지 + MC/DC
+    # EXTRA_FLAGS는 의도적으로 따옴표 없이 전개한다 (여러 옵션으로 분리되어야 함).
+    # shellcheck disable=SC2086
     "$CLANG" -O0 -g -fprofile-instr-generate -fcoverage-mapping -fcoverage-mcdc \
-        "$SRC" "$TEST" -o "$EXE" || status=4
+        "$SRC" "$TEST" $EXTRA_FLAGS -o "$EXE" || status=4
 fi
 
 if [ "$status" -eq 0 ]; then

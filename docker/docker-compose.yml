@@ -1,0 +1,25 @@
+# Jenkins CI (이 PC의 Docker 위에서 실행, 포트 8080)
+#   시작: bash scripts/jenkins.sh up
+#   관리자 비밀번호: docker/.env 의 JENKINS_ADMIN_PASSWORD (git에 올라가지 않음)
+services:
+  jenkins:
+    build: ./jenkins
+    image: claudeclang-jenkins:lts
+    container_name: claudeclang-jenkins
+    # 호스트 Docker 소켓을 쓰므로 root로 실행한다. 로컬 개발 PC 전용 구성이다.
+    user: root
+    ports:
+      - "8080:8080"
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?docker/.env 에 JENKINS_ADMIN_PASSWORD 를 설정하세요}
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      CASC_JENKINS_CONFIG: /usr/share/jenkins/ref/casc.yaml
+      # Jenkinsfile 이 빌드 컨테이너에 작업 공간을 공유할 때 쓰는 이름
+      JENKINS_CONTAINER_NAME: claudeclang-jenkins
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
