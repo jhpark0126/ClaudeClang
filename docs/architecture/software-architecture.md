@@ -48,33 +48,33 @@ ARCH-004는 ASIL B 지시를 그대로 적용하므로 ASIL B로 개발한다. A
 | 필드 | 내용 |
 |---|---|
 | 제공 / 사용 | ARCH-001 / ARCH-005 |
-| 시그니처 | `cl_status_t iv_validate(iv_state_t *st, const cl_raw_input_t *raw, uint32_t now_ms, cl_validated_t *out)` |
+| 시그니처 | `cl_status_t input_validator_validate(input_validator_state_t *st, const cl_raw_input_t *raw, uint32_t now_ms, cl_validated_t *out)` |
 | 매개변수 | `st` in/out 검증기 상태, `raw` in 이번 주기에 수신한 스냅샷(수신 없음이면 `NULL` 허용), `now_ms` in 단조 증가 ms, `out` out 검증 결과 |
 | 반환값 | `CL_OK`, `CL_ERR_NULL_ARG`(`st` 또는 `out`이 `NULL`) |
-| 사전/사후 | 사전: `st`가 `iv_init`으로 초기화됨. 사후: `out`의 모든 필수 입력에 `cl_validity_t`가 채워짐. INVALID·STALE 입력의 값은 사용하면 안 된다(값은 0으로 채움) |
+| 사전/사후 | 사전: `st`가 `input_validator_init`으로 초기화됨. 사후: `out`의 모든 필수 입력에 `cl_validity_t`가 채워짐. INVALID·STALE 입력의 값은 사용하면 안 된다(값은 0으로 채움) |
 | 호출 규칙 | 평가주기마다 1회, `child_lock`만 호출. 재진입 불가(상태 갱신). 인터럽트 안전 아님 |
 | 오류 처리 | `CL_ERR_NULL_ARG`이면 호출자는 결과를 쓰지 않고 오류를 그대로 상위에 반환 |
-| 부가 인터페이스 | `cl_status_t iv_init(iv_state_t *st)` |
+| 부가 인터페이스 | `cl_status_t input_validator_init(input_validator_state_t *st)` |
 | 규칙 | 입력별 상태(마지막 값, 마지막 유효 수신 시각, 유효값 보유 여부, 마지막 수신이 불량인지)를 갖는다. `raw`가 있고 필드가 누락·형식·범위·열거 오류면 INVALID. 마지막 수신이 불량이면 다음 유효 수신 전까지 INVALID. 유효값이 한 번도 없으면 INVALID. 유효값이 있고 나이(`now_ms` − 마지막 유효 수신 시각)가 200 ms 초과이면 STALE, 이하이면 VALID |
 
 ### IF-002 안전 판단
 | 필드 | 내용 |
 |---|---|
 | 제공 / 사용 | ARCH-002 / ARCH-005 |
-| 시그니처 | `cl_status_t sa_decide(sa_state_t *st, const cl_validated_t *in, sa_decision_t *out)` |
+| 시그니처 | `cl_status_t safety_arbiter_decide(safety_arbiter_state_t *st, const cl_validated_t *in, safety_decision_t *out)` |
 | 매개변수 | `st` in/out 안전 상태(충돌 래치), `in` in 검증 결과, `out` out 도어별 지시 `cl_directive_t[2]`, 건전성 `cl_health_t`, 안전 이유 비트마스크 |
 | 반환값 | `CL_OK`, `CL_ERR_NULL_ARG` |
-| 사전/사후 | 사전: `sa_init` 완료. 사후: 도어마다 지시가 정해짐. 래치가 한 번 세워지면 `sa_init` 전까지 유지 |
-| 호출 규칙 | 평가주기마다 1회, `iv_validate` 직후. 재진입 불가 |
+| 사전/사후 | 사전: `safety_arbiter_init` 완료. 사후: 도어마다 지시가 정해짐. 래치가 한 번 세워지면 `safety_arbiter_init` 전까지 유지 |
+| 호출 규칙 | 평가주기마다 1회, `input_validator_validate` 직후. 재진입 불가 |
 | 오류 처리 | `CL_ERR_NULL_ARG`이면 호출자는 `out`을 쓰지 않는다 |
-| 부가 인터페이스 | `cl_status_t sa_init(sa_state_t *st)` |
+| 부가 인터페이스 | `cl_status_t safety_arbiter_init(safety_arbiter_state_t *st)` |
 | 판단 규칙 (우선순위 순) | ① 래치 또는 유효 `crash_status`=CONFIRMED → 양쪽 `CL_DIR_RELEASE`(래치 설정). ② 도어별: 유효 접근위험 TRUE → `CL_DIR_LOCK`, 이유 `APPROACH_RISK_LOCK`. ③ 도어별: 접근위험 입력이 INVALID/STALE → `CL_DIR_HOLD`, 이유 `APPROACH_INPUT_UNRELIABLE`. ④ 건전성이 FAULT/DEGRADED이면 나머지 도어 `CL_DIR_HOLD`. ⑤ 그 외 `CL_DIR_FREE`. PENDING은 지시를 만들지 않고 이유 `CRASH_PENDING`만 낸다. 건전성: 유효 `sensor_fault`=TRUE → FAULT, 아니면 필수 입력 중 INVALID/STALE 하나라도 있으면 DEGRADED, 그 외 NORMAL |
 
 ### IF-003 점화 정책 (QM)
 | 필드 | 내용 |
 |---|---|
 | 제공 / 사용 | ARCH-003 / ARCH-005 |
-| 시그니처 | `cl_status_t ip_propose(const cl_validated_t *in, ip_proposal_t *out)` |
+| 시그니처 | `cl_status_t ignition_policy_propose(const cl_validated_t *in, ignition_proposal_t *out)` |
 | 매개변수 | `in` in 검증 결과, `out` out `release_all`(0/1) |
 | 반환값 | `CL_OK`, `CL_ERR_NULL_ARG` |
 | 사전/사후 | 사전: 없음(상태 없음). 사후: 유효 `ignition_on`=FALSE일 때만 `release_all`=1 |
@@ -85,7 +85,7 @@ ARCH-004는 ASIL B 지시를 그대로 적용하므로 ASIL B로 개발한다. A
 | 필드 | 내용 |
 |---|---|
 | 제공 / 사용 | ARCH-004 / ARCH-005 |
-| 시그니처 | `cl_status_t or_resolve(const sa_decision_t *dec, const ip_proposal_t *prop, const cl_validated_t *in, const cl_lock_t prev[2], cl_result_t *out)` |
+| 시그니처 | `cl_status_t output_resolver_resolve(const safety_decision_t *dec, const ignition_proposal_t *prop, const cl_validated_t *in, const cl_lock_t prev[2], cl_result_t *out)` |
 | 매개변수 | `dec` in 안전 지시, `prop` in QM 제안, `in` in 검증 결과(운전자 요청, 입력 유효성), `prev` in 직전 확정 출력, `out` out 최종 결과 |
 | 반환값 | `CL_OK`, `CL_ERR_NULL_ARG` |
 | 사전/사후 | 사후: 출력은 항상 {LOCK, RELEASE}, 상태는 항상 정의된 값 |
@@ -104,7 +104,7 @@ ARCH-004는 ASIL B 지시를 그대로 적용하므로 ASIL B로 개발한다. A
 | 호출 규칙 | 호출자가 `EVAL_PERIOD_MS`(10 ms)마다 1회 호출한다. 단일 스레드, 재진입 불가 |
 | 오류 처리 | 오류이면 `ctx`를 바꾸지 않는다. 호출자는 직전 `out`을 신뢰하지 않고 오류를 보고한다 |
 
-`cl_step` 내부 호출 순서는 `iv_validate` → `sa_decide` → `ip_propose` → `or_resolve` → 직전 출력 갱신이다. 한 컴포넌트가 오류를 반환하면 이후 단계를 건너뛰고 그 오류를 반환한다.
+`cl_step` 내부 호출 순서는 `input_validator_validate` → `safety_arbiter_decide` → `ignition_policy_propose` → `output_resolver_resolve` → 직전 출력 갱신이다. 한 컴포넌트가 오류를 반환하면 이후 단계를 건너뛰고 그 오류를 반환한다.
 
 ## 5. 의존 관계 (인터페이스 단위)
 ```
@@ -119,7 +119,7 @@ ARCH-004는 ASIL B 지시를 그대로 적용하므로 ASIL B로 개발한다. A
 - ARCH-003은 ARCH-002의 상태나 지시에 접근하지 못하고, ARCH-002는 ARCH-003의 제안을 보지 못한다. 서로 영향을 줄 수 있는 유일한 지점은 ARCH-004의 합성 규칙이다.
 
 ## 6. 동적 동작
-1. 초기화: `cl_init` → `iv_init`(모든 입력 INVALID 상태), `sa_init`(래치 없음), 직전 출력 RELEASE.
+1. 초기화: `cl_init` → `input_validator_init`(모든 입력 INVALID 상태), `safety_arbiter_init`(래치 없음), 직전 출력 RELEASE.
 2. 주기 실행(10 ms): 위 4장 호출 순서. 입력이 없는 주기(`raw`=`NULL`)에도 호출해 나이를 갱신한다.
 3. 오류 처리: `NULL` 인자는 `CL_ERR_NULL_ARG`로 즉시 반환. 입력 오류는 오류코드가 아니라 입력 INVALID/STALE로 흡수되어 정상 `CL_OK` 경로를 탄다(SWR-Q-001).
 4. 첫 주기: 유효 입력이 없으면 필수 입력 전부 INVALID → 건전성 DEGRADED, 출력 RELEASE 유지(SSR-021a, SWR-F-005).
@@ -140,7 +140,7 @@ ARCH-004는 ASIL B 지시를 그대로 적용하므로 ASIL B로 개발한다. A
 - 응집도: 5개 컴포넌트의 책임을 각각 한 문장으로 썼고 "및" 분리가 필요한 것이 없다. ARCH-005는 조율만 하고 규칙을 갖지 않는다.
 - 결합도: 컴포넌트 간 호출 없음, 전달은 값 구조체만. 순환 의존 없음.
 - 모듈화: 각 컴포넌트가 입력 구조체만으로 단독 시험된다. ARCH-003, 004는 상태 없는 순수 함수.
-- 캡슐화: `iv_state_t`, `sa_state_t`, `cl_ctx_t` 필드는 소유 컴포넌트만 해석한다(헤더에 구조체를 두되 외부는 필드를 쓰지 않는 규칙, 코드 리뷰 항목).
+- 캡슐화: `input_validator_state_t`, `safety_arbiter_state_t`, `cl_ctx_t` 필드는 소유 컴포넌트만 해석한다(헤더에 구조체를 두되 외부는 필드를 쓰지 않는 규칙, 코드 리뷰 항목).
 - SOLID: 단일 책임(위 표), 개방-폐쇄(이터 2에서 `command_handler`를 ARCH-004 앞에 추가하고 ARCH-004 합성 규칙만 확장), 의존 역전(상위 `child_lock`이 인터페이스 함수 시그니처에만 의존, 단위 시험에서 스텁 대체 가능). 인터페이스 분리(각 IF는 한 컴포넌트 기능만 노출).
 - 알려진 한계: C의 헤더 구조체는 완전한 은닉을 주지 않는다. 불투명 타입으로 바꾸면 정적 할당이 어려워져 이터 1에서는 규칙으로 관리한다.
 
@@ -160,3 +160,4 @@ ARCH-004는 ASIL B 지시를 그대로 적용하므로 ASIL B로 개발한다. A
 | 일자 | 내용 |
 |---|---|
 | 2026-11-27 | 초안 (이터레이션 1) |
+| 2026-11-27 | 상세 설계에서 함수·타입 이름을 약어 없는 이름으로 변경(`iv_`→`input_validator_` 등) |
