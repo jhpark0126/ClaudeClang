@@ -105,7 +105,8 @@ TEST_F(ChildLockUnit, UT051_InitResetsEverything)
  * @purpose 컴포넌트 연결(검증 결과 → 판단 → 합성)과 직전 출력 저장 확인.
  * @input   좌 접근위험 TRUE + 좌 해제 요청, 이어서 접근위험 FALSE와 같은 요청
  * @steps   1. 첫 주기를 실행한다. 2. 두 번째 주기를 실행한다.
- * @expect  첫 주기 좌 LOCK+억제 이유+LOCK 이유, 두 번째 주기 좌 LOCK, 우 RELEASE 유지(도어별 직전 출력 저장)
+ * @expect  첫 주기 좌 LOCK+억제 이유+LOCK 이유, 두 번째 주기 좌 LOCK, 우 RELEASE 유지(도어별 직전
+ * 출력 저장)
  *
  * @generated_by   Claude Sonnet 5.5 (claude-sonnet-5-5)
  * @generated_at   2026-11-27
