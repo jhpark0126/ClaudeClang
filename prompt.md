@@ -122,3 +122,10 @@
 - 단위 테스트(SWE.4): `test/unit/`에 35개(UT-001~054, 5개 파일), PICT 모델 `test/model/safety_arbiter.pict`(27건) + 요구사항 오라클. 결과 성공률 100%, MC/DC 40/40, 분기 144/144. 도달 불가능 분기(child_lock의 하위 단계 상태 확인)를 구현에서 제거(DD-D5). 변이 시험 19개 중 18개 검출, 1개는 등가 변이. 명세와 결과: `docs/test/unit/unit-test-report.md`. Lizard가 시험 코드의 큰 함수를 지적해 헬퍼로 분리.
 - 통합 테스트(SWE.5): `test/integration/`에 11개(IT-001~011), PICT 모델 `test/model/pipeline.pict`(20건). 성공률 100%, 함수 커버리지 27/27. 컴포넌트는 실제 구현을 연결(Mock 없음). IT-003 최초 실패는 시험 시나리오 오류(제품 동작은 요구사항과 일치)로 판단해 시험을 수정. 명세와 결과: `docs/test/integration/integration-test-report.md`.
 - 시스템 테스트(SWE.6): `docs/test/system/system-test-spec.xlsx`(56건: 기능 52, 비기능 4, 제안 18), JSON·PICT 모델 포함. 베이시스 5/5, 조건 21/21, 빌드 검증 오류·경고 0. `completed_iteration=1`로 올려 `ci/requirement_coverage.sh` 5/5(100%) 통과. PICT 9건은 임시 하니스로 실제 SW와 대조(일치, 이유코드는 집합), 나머지 47건은 미실행. `openpyxl`이 없어 임시 폴더 가상환경에 설치해 사용. 명세와 질의 사항: `docs/test/system/system-test-report.md`.
+
+## 14. 이터레이션 1 확정과 PR
+**프롬프트:** 응 확정하고 PR 진행해줘
+
+**답변 요약:**
+- 사용자가 이터레이션 1을 확정함(리뷰 면제 사실 고지 후). `feature/iteration-1`을 푸시함. 이 브랜치는 `feature/iteration-0`(커밋 1개)을 포함하므로 PR 하나로 둘 다 `develop`에 병합된다.
+- Jenkins(로컬 8080)가 브랜치를 빌드해 `SUCCESS`(커밋 `647d45e`). `gh` CLI와 GitHub 토큰이 없어 PR은 생성하지 못하고, 생성 링크와 PR 본문을 사용자에게 전달함.
