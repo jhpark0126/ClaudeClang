@@ -4,6 +4,7 @@ FROM ubuntu:24.04
 
 ARG LLVM_VERSION=22
 ARG PICT_VERSION=v3.7.4
+ARG VERREPORT_VERSION=v0.1.0
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV LANG=C.UTF-8 \
@@ -35,6 +36,10 @@ RUN curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /us
 # Lizard(순환복잡도/함수 길이), lcov_cobertura(커버리지를 Jenkins가 읽는 형식으로 변환)
 RUN python3 -m venv /opt/venv \
     && /opt/venv/bin/pip install --no-cache-dir lizard lcov_cobertura
+
+# VERReport (검증 결과 대시보드: gtest·llvm-cov·Cppcheck·Lizard 결과를 HTML 한 묶음으로)
+RUN /opt/venv/bin/pip install --no-cache-dir \
+        "git+https://github.com/jhpark0126/VERReport.git@${VERREPORT_VERSION}"
 
 # PICT (조합 테스트 생성) — 소스에서 빌드
 RUN git clone --depth 1 --branch ${PICT_VERSION} https://github.com/microsoft/pict.git /tmp/pict \

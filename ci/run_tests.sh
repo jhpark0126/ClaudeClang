@@ -78,6 +78,8 @@ src_filter="$PROJECT_DIR/src"
 
 llvm-cov report "$exe" -instr-profile="$out/coverage.profdata" -show-mcdc-summary "$src_filter" > "$out/coverage.txt" 2>&1
 llvm-cov export "$exe" -instr-profile="$out/coverage.profdata" -summary-only "$src_filter" > "$out/summary.json" 2>/dev/null
+# 검증 결과 대시보드(VERReport)용: 함수 단위(라인·분기·MC/DC) 상세가 들어 있는 전체 export
+llvm-cov export "$exe" -instr-profile="$out/coverage.profdata" "$src_filter" > "$out/coverage.json" 2>/dev/null
 llvm-cov export "$exe" -instr-profile="$out/coverage.profdata" -format=lcov "$src_filter" > "$out/coverage.lcov" 2>/dev/null
 llvm-cov show "$exe" -instr-profile="$out/coverage.profdata" -format=html -output-dir="$out/html" \
     -show-mcdc -show-branches=count "$src_filter" >/dev/null 2>&1

@@ -19,6 +19,8 @@ dirs=$(existing_dirs "${ALL_SOURCE_DIRS[@]}")
 # 리포트(Jenkins에서 보는 용도): 위반 여부와 무관하게 항상 생성
 lizard -C "$MAX_CCN" -L "$MAX_LENGTH" -H $dirs > "$REPORT_DIR/lizard.html" 2>/dev/null || true
 lizard -C "$MAX_CCN" -L "$MAX_LENGTH" --xml $dirs > "$REPORT_DIR/lizard.xml" 2>/dev/null || true
+# 검증 결과 대시보드(VERReport)용: XML에는 함수 길이가 없어 CSV를 함께 낸다
+lizard -C "$MAX_CCN" -L "$MAX_LENGTH" --csv $dirs > "$REPORT_DIR/lizard.csv" 2>/dev/null || true
 
 # 판정: -w 는 기준 초과 함수만 출력하고, 하나라도 있으면 비정상 종료한다.
 if lizard -C "$MAX_CCN" -L "$MAX_LENGTH" -w $dirs; then
