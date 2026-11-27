@@ -17,36 +17,24 @@ unclassified:
 
 jobs:
   - script: |
-      // Gitflow 브랜치(develop, feature/*, release/*, hotfix/*, main)를 모두 찾아 각각 빌드한다.
-      multibranchPipelineJob('ClaudeClang') {
-        displayName('ClaudeClang')
-        branchSources {
-          branchSource {
-            source {
+      // 정기 실행 전용 잡. PR/브랜치 CI는 GitHub Actions(.github/workflows/ci.yml)가 맡고,
+      // Jenkins는 develop을 주기적으로 검증해 결과(JUnit, Cppcheck, 커버리지, HTML)를 보관한다.
+      pipelineJob('ClaudeClang-periodic') {
+        displayName('ClaudeClang 정기 실행 (develop)')
+        definition {
+          cpsScm {
+            scm {
               git {
-                id('claudeclang-git')
-                remote('https://github.com/jhpark0126/ClaudeClang.git')
-                traits {
-                  // 이 trait이 없으면 어떤 브랜치도 발견되지 않는다.
-                  gitBranchDiscovery()
-                }
+                remote { url('https://github.com/jhpark0126/ClaudeClang.git') }
+                branch('*/develop')
               }
             }
-          }
-        }
-        factory {
-          workflowBranchProjectFactory {
             scriptPath('Jenkinsfile')
-          }
-        }
-        orphanedItemStrategy {
-          discardOldItems {
-            numToKeep(20)
+            lightweight(false)
           }
         }
         triggers {
-          periodicFolderTrigger {
-            interval('2m')
-          }
+          // 6시간마다 (H는 분을 분산시킨다). 새 커밋이 없어도 실행한다.
+          cron('H H/6 * * *')
         }
       }

@@ -90,3 +90,12 @@
 - 구현 종료 시 Lizard를 검사하는 Stop 훅(`.claude/settings.json`) 추가 및 동작 확인.
 - 문제와 해결: (1) Doxygen 자가 검증 변형이 경고를 유발하지 못함 → 변형 수정, (2) Jenkins가 브랜치를 발견하지 못함 → 브랜치 탐색 trait 추가, (3) 재시작 시 빌드가 중복 예약되어 #1 로그가 깨짐 → 재시작 직후 경쟁 상태로 판단, #2부터 정상.
 - `gh` CLI가 없어 PR은 만들지 못함. 미확정 사항을 `CLAUDE.md`에 기록함.
+
+## 11. CI를 GitHub Actions로 변경 (Jenkins는 정기 실행)
+**프롬프트:** CI는 Action으로 변경해줘. 단, 내부에서도 jenkins를 주기적으로 실행하도록 구성해줘
+
+**답변 요약:**
+- Gitflow에 따라 `feature/github-actions` 브랜치에서 작업함.
+- `.github/workflows/ci.yml` 추가: PR(develop/main), 브랜치 push, 매일 정기 실행(cron), 수동 실행에서 `claudeclangbuild` 이미지로 `ci/all.sh` 실행, 리포트 업로드와 JUnit 요약.
+- Jenkins는 브랜치 폴링(멀티브랜치 잡)을 없애고 `ClaudeClang-periodic` 잡이 `develop`을 6시간마다 실행하도록 `casc.yaml`을 변경함. 기존 멀티브랜치 잡은 삭제함.
+- GitHub 연동이 Actions로 해결되어 PAT 항목은 미확정 목록에서 빼고, 브랜치 보호 설정만 남김.

@@ -1,4 +1,4 @@
-// ClaudeClang CI
+// ClaudeClang CI (Jenkins 정기 실행). PR/브랜치 CI는 .github/workflows/ci.yml (GitHub Actions)
 // 모든 단계는 개발 환경과 같은 이미지(claudeclangbuild)에서 실행한다.
 // 게이트는 ci/*.sh 에 있고, 로컬에서도 같은 스크립트를 쓴다: bash scripts/dev.sh bash ci/all.sh
 //

@@ -130,9 +130,9 @@
 ---
 
 ## 5. CI 환경
-- **Jenkins 안정화(LTS) 버전**을 사용하고, 이 PC의 **Docker 위에서 실행**한다. 포트는 **8080**.
-- 필요한 플러그인을 설치해 두고, **테스트·정적 분석 등의 결과를 플러그인에서 확인**할 수 있게 한다.
-- CI 파이프라인(`Jenkinsfile`)은 `claudeclangbuild` 이미지 안에서 `ci/*.sh` 게이트를 실행하고, 2장의 품질 기준을 하나라도 어기면 실패시킨다.
+- **CI는 GitHub Actions**(`.github/workflows/ci.yml`)가 맡는다. PR(`develop`, `main` 대상), 브랜치 push, 매일 정기 실행(cron), 수동 실행(`workflow_dispatch`)에서 `claudeclangbuild` 이미지로 `ci/all.sh`를 실행한다. 결과는 JUnit 요약과 리포트 아티팩트(`build/reports/`)로 남는다.
+- **Jenkins 안정화(LTS) 버전**은 이 PC의 **Docker 위에서 포트 8080**으로 실행하며, **정기 실행 전용**이다. 잡 `ClaudeClang-periodic`이 `develop`을 6시간마다 검증하고, 테스트·정적 분석 결과를 플러그인에서 확인할 수 있게 한다. 브랜치 폴링은 하지 않는다.
+- 두 CI 모두 `Jenkinsfile`/워크플로가 `ci/*.sh` 게이트를 실행하고, 2장의 품질 기준을 하나라도 어기면 실패시킨다.
 - Jenkins 실행·관리: `bash scripts/jenkins.sh <up|down|logs|status>`. 관리자 ID는 `admin`, 비밀번호는 `docker/.env`(git에 올라가지 않음).
 - 결과 확인: Jenkins의 테스트 결과(JUnit), 정적 분석(Warnings NG의 Cppcheck), 커버리지(Coverage 플러그인), HTML 리포트(단위 MC/DC, 통합 함수 커버리지, Lizard, Doxygen).
 - 게이트 자가 검증: `bash scripts/dev.sh bash ci/selftest/selftest.sh` (정상 샘플은 통과, 망가뜨린 샘플은 각 게이트가 실패하는지 확인).
@@ -160,6 +160,4 @@
 | Cppcheck 룰 범위 | `warning,style,performance,portability` | `ci/static_analysis.sh`의 `CPPCHECK_ENABLE` |
 | 제품 코드 언어 | C/C++ 모두 빌드 가능 (테스트는 C++/GoogleTest) | `CMakeLists.txt` |
 | 시스템 테스트 요구사항 커버리지 게이트 | 미구현 (추적 매트릭스 형식 미정) | `ci/` 에 `requirement_coverage.sh` 추가 |
-| GitHub 연동(PR 상태 보고, 브랜치 보호) | 미구성 (아래 참조) | Jenkins 자격 증명, GitHub 설정 |
-
-- 로컬 Jenkins(`localhost:8080`)는 GitHub가 직접 호출할 수 없으므로, 지금은 2분 주기로 브랜치를 폴링해 빌드한다. PR의 CI 상태를 GitHub에 보고하고 "CI 통과 시에만 병합"을 강제하려면 GitHub 토큰(PAT)과 브랜치 보호 규칙이 필요하다.
+| 브랜치 보호(CI 통과 시에만 병합) | 미설정 | GitHub 저장소 설정의 Branch protection에서 `품질 게이트` 체크를 필수로 지정 |

@@ -1,0 +1,68 @@
+# ClaudeClang CI (GitHub Actions)
+# 게이트는 ci/*.sh 에 있고, 개발 환경과 같은 이미지(claudeclangbuild)에서 실행한다.
+# 로컬에서 같은 검사를 하려면: bash scripts/dev.sh bash ci/all.sh
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main, 'feature/**', 'release/**', 'hotfix/**']
+  schedule:
+    # 정기 실행 (UTC 18:00 = 한국 03:00). develop 기준으로 실행된다.
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    name: 품질 게이트
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: 빌드 이미지 (claudeclangbuild)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          tags: claudeclangbuild:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 도구 버전
+        run: docker run --rm claudeclangbuild:latest tool-versions
+
+      # 한 게이트가 실패해도 나머지를 끝까지 실행해 부적합을 한 번에 본다. 마지막에 실패 처리한다.
+      - name: 게이트 실행 (ci/all.sh)
+        run: |
+          docker run --rm -v "$PWD":/work -w /work \
+            --user "$(id -u):$(id -g)" claudeclangbuild:latest bash ci/all.sh
+
+      - name: 리포트 업로드
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-${{ github.run_number }}
+          path: build/reports/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: 테스트 결과 요약
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: build/reports/*/results.xml
+          check_name: JUnit 테스트 결과
+          fail_on_failure: false
+          require_tests: false
