@@ -1,0 +1,8 @@
+# child_lock 한 번 평가(IF-005)와 컴포넌트 직접 연결(IF-001~004)의 일치 확인용 입력 조합
+# 첫 주기는 아래 스냅샷, 둘째 주기(10 ms 뒤)는 스냅샷 없음(NULL)으로 실행한다.
+Crash:  NONE, PENDING, CONFIRMED, BAD
+AppL:   0, 1, BAD
+AppR:   0, 1
+Ign:    ON, OFF, BAD
+Fault:  0, 1
+Req:    NONE, UNLOCK_LEFT, UNLOCK_ALL, LOCK_ALL, BAD
