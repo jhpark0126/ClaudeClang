@@ -148,3 +148,18 @@
 - `docker/` — 빌드 이미지(`Dockerfile`), Jenkins 이미지와 설정(`jenkins/`), `docker-compose.yml`
 - `scripts/` — 이미지 빌드, 개발 컨테이너 실행, Jenkins 관리, Hook
 - `docs/` — 요구사항, 설계, 리뷰 기록 (`docs/reviews/`)
+
+---
+
+## 미확정 사항 (사용자 결정 필요)
+정해지기 전까지는 아래 임시 값으로 동작한다. 정해지면 해당 위치의 값을 바꾸고 이 목록에서 지운다.
+
+| 항목 | 임시 값 | 바꾸는 곳 |
+|---|---|---|
+| 주석률 기준 | 판정 안 함(측정만, `COMMENT_RATIO_MIN=0`) | `ci/comment_ratio.sh` |
+| Cppcheck 룰 범위 | `warning,style,performance,portability` | `ci/static_analysis.sh`의 `CPPCHECK_ENABLE` |
+| 제품 코드 언어 | C/C++ 모두 빌드 가능 (테스트는 C++/GoogleTest) | `CMakeLists.txt` |
+| 시스템 테스트 요구사항 커버리지 게이트 | 미구현 (추적 매트릭스 형식 미정) | `ci/` 에 `requirement_coverage.sh` 추가 |
+| GitHub 연동(PR 상태 보고, 브랜치 보호) | 미구성 (아래 참조) | Jenkins 자격 증명, GitHub 설정 |
+
+- 로컬 Jenkins(`localhost:8080`)는 GitHub가 직접 호출할 수 없으므로, 지금은 2분 주기로 브랜치를 폴링해 빌드한다. PR의 CI 상태를 GitHub에 보고하고 "CI 통과 시에만 병합"을 강제하려면 GitHub 토큰(PAT)과 브랜치 보호 규칙이 필요하다.
