@@ -115,3 +115,5 @@
 - `software-requirements.md`(QM·인터페이스·제한·품질·제약), `safety-requirements.md`(SSR-001~027) 작성. 1차 리뷰 반려(27건)를 조치하고 가정 A-16~A-20, Q13~Q17 추가.
 - 사용자 결정: 추적 매트릭스 하위 열은 각 단계 게이트에서 채움(권고안), 새 가정 A-16~A-20 승인. 체크리스트 REQ-11에 반영.
 - 재리뷰 진행 중.
+- 사용자 결정: "이번 이터레이션은 리뷰는 넘어가자. 됐다고 치고 다음 작업해" → 이터 1의 `reviewer` 리뷰 면제(`docs/reviews/iteration-1-review-waiver.md`). 분석 3차 리뷰는 중단.
+- 아키텍처(SWE.2): `docs/architecture/software-architecture.md` 작성. 컴포넌트 5개(input_validator, safety_arbiter, ignition_policy[QM], output_resolver, child_lock), 인터페이스 IF-001~005, 설계 결정 DD-01~08, 요구사항 할당표. `trace.csv` design 열 갱신.
