@@ -118,3 +118,4 @@
 - 사용자 결정: "이번 이터레이션은 리뷰는 넘어가자. 됐다고 치고 다음 작업해" → 이터 1의 `reviewer` 리뷰 면제(`docs/reviews/iteration-1-review-waiver.md`). 분석 3차 리뷰는 중단.
 - 아키텍처(SWE.2): `docs/architecture/software-architecture.md` 작성. 컴포넌트 5개(input_validator, safety_arbiter, ignition_policy[QM], output_resolver, child_lock), 인터페이스 IF-001~005, 설계 결정 DD-01~08, 요구사항 할당표. `trace.csv` design 열 갱신.
 - 상세 설계(SWE.3): `docs/design/detailed-design.md`. 모듈 MOD-000~005, 함수 FUNC-001~042, 크기·시간 특성 점검, 설계 결정 DD-D1~4. 아키텍처의 약어 함수명을 의미 있는 이름으로 변경. `trace.csv` design 열에 MOD 추가.
+- 구현(TDD): `include/`(헤더 6개), `src/`(C 5개 모듈), `test/tdd/`(GoogleTest 72개). 모듈마다 RED(링크 실패 확인) → GREEN 순서로 진행. 게이트 확인: clang-format 0건, Cppcheck 0건(변수 범위 지적 수정), Lizard 통과, 태그 16개 파일, 주석률 43.9%, TDD 72/72 통과, TDD 커버리지(기록만) 함수 27/27, 라인 405/405, MC/DC 조건 40/40, 분기 150/156. 설계에 보조 함수 반영(14장). `CMakeLists.txt`: 시험 묶음에 `include/` 경로 추가.

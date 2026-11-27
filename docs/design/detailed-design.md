@@ -244,8 +244,23 @@ return status
 
 ## 13. 추적
 모든 `FUNC`는 ARCH와 SSR/SWR에 연결했다. 아키텍처 9장의 할당 요구사항이 모두 하나 이상의 FUNC에 닿는다: SWR-I-001~003, I-008은 FUNC-002/004(입력 해석), SWR-L-001, Q-001~003, C-001~004는 MOD-005 및 전체 규칙(1장)과 CI 게이트. `trace.csv`의 `design` 열에 `MOD-xxx`를 덧붙여 갱신한다.
+## 14. 구현 중 설계 보완 (이터레이션 1)
+구현 단계에서 함수 크기와 Cppcheck(변수 범위)를 맞추려고 아래 내부 함수를 설계에 추가했다. 동작은 위 설계와 같고 책임만 나눈 것이다.
+
+| ID | 함수 | 책임 | 호출하는 함수 |
+|---|---|---|---|
+| FUNC-007 | `static int32_t validator_in_range(int32_t value, int32_t max_value)` | 값이 0~`max_value`인지 1/0으로 돌려준다. | FUNC-003, FUNC-008 |
+| FUNC-008 | `static int32_t validator_request_in_range(const cl_raw_input_t *raw)` | 운전자 요청 side/action/source가 모두 범위 안인지 돌려준다. | FUNC-006 |
+| FUNC-009 | `static uint32_t validator_age_ms(const input_entry_t *entry, uint32_t now_ms)` | 입력 나이를 계산한다(시각 역행이면 0, DD-D3). | FUNC-005 |
+| FUNC-015 | `static int32_t arbiter_any_input_unreliable(const cl_validated_t *in)` | 필수 입력 중 VALID가 아닌 것이 있는지 돌려준다. | FUNC-013 |
+| FUNC-035 | `static int32_t resolver_request_targets(cl_side_t side, int32_t door)` | 운전자 요청이 그 도어를 대상으로 하는지 돌려준다. | FUNC-033 |
+| FUNC-036 | `static uint32_t resolver_collect_reasons(const safety_decision_t *decision, const cl_validated_t *in, int32_t ignition_applies)` | 이유코드를 합친다. | FUNC-030 |
+| FUNC-043 | `static cl_status_t child_lock_run_pipeline(cl_ctx_t *ctx, const cl_raw_input_t *raw, uint32_t now_ms, cl_result_t *result)` | 검증, 안전 판단, 점화 제안, 합성을 순서대로 실행하고 첫 실패에서 멈춘다. | FUNC-041 |
+
+그 밖의 구현 규칙: 반복 변수는 `for` 문 안에서 선언한다(C17, Cppcheck `variableScope`·`unreadVariable` 대응). 헤더의 `extern "C"`는 시험(C++)이 C 헤더를 쓰기 위한 것이다.
 
 ## 변경 이력
 | 일자 | 내용 |
 |---|---|
 | 2026-11-27 | 초안 (이터레이션 1) |
+| 2026-11-27 | 구현 중 보조 함수 FUNC-007~009, 015, 035, 036, 043 추가(14장) |
