@@ -92,8 +92,10 @@ pipeline {
 
             // 검증 결과 대시보드 (VERReport): 위 결과 파일을 모아 총괄·상세를 한 묶음으로 보여 준다.
             // 판정은 각 게이트가 하므로 리포트 생성 실패가 빌드 결과를 바꾸지 않게 한다.
+            // 컨테이너는 UTC이므로 빌드 일시를 한국 시간으로 보이게 TZ를 넘긴다.
             sh """docker run --rm --volumes-from "\$JENKINS_CONTAINER_NAME" -w "\$WORKSPACE" \
                 -e BUILD_NUMBER -e JOB_NAME -e BRANCH_NAME -e GIT_BRANCH -e GIT_COMMIT -e BUILD_URL -e WORKSPACE \
+                -e TZ=Asia/Seoul \
                 -e VERREPORT_BUILD_TIME=${currentBuild.startTimeInMillis} \
                 ${IMAGE} verreport build/reports -o build/reports/verreport || true"""
             publishHTML target: [allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true,
