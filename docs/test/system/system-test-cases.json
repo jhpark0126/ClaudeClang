@@ -1,0 +1,1668 @@
+{
+ "project": "ClaudeClang 전자식 차일드락 제어 SW (이터레이션 1)",
+ "basis": [
+  {
+   "id": "OEM-SR-001",
+   "title": "충돌 CONFIRMED 시 해제 (최우선, ASIL B 입력)",
+   "text": "SW는 OEM 충돌상태가 CONFIRMED가 되면 다른 명령보다 우선하여 후석 좌, 우 잠금 해제를 요구해야 한다. 수용기준: 유효 충돌 입력 시 두 출력이 300 ms 이내 RELEASE이고 이후 입력 주기에도 유지된다.",
+   "conditions": [
+    {
+     "id": "OEM-SR-001-C1",
+     "text": "유효 CONFIRMED 수신 시 양쪽 출력 RELEASE"
+    },
+    {
+     "id": "OEM-SR-001-C2",
+     "text": "해제가 이후 모든 평가주기에서 유지됨"
+    },
+    {
+     "id": "OEM-SR-001-C3",
+     "text": "다른 명령·입력(접근위험 등)보다 우선"
+    },
+    {
+     "id": "OEM-SR-001-C4",
+     "text": "CONFIRMED가 아닌 충돌 상태(NONE, PENDING)는 출력을 바꾸지 않음(PENDING은 가정 A-07)"
+    },
+    {
+     "id": "OEM-SR-001-C5",
+     "text": "수신 후 300 ms 이내 해제(비기능: 시간)"
+    }
+   ]
+  },
+  {
+   "id": "OEM-SR-002",
+   "title": "후측방 접근위험 도어 잠금과 해제 요청 억제 (ASIL B 입력)",
+   "text": "SW는 후측방 접근위험이 TRUE인 도어를 LOCK하고 해당 도어의 해제 요청을 억제해야 한다. 수용기준: 접근위험 TRUE가 되면 해당 출력이 LOCK이고 RELEASE 요청에도 LOCK을 유지하며 원인이 기록된다.",
+   "conditions": [
+    {
+     "id": "OEM-SR-002-C1",
+     "text": "접근위험 TRUE인 도어를 LOCK"
+    },
+    {
+     "id": "OEM-SR-002-C2",
+     "text": "그 도어의 해제 요청을 억제하고 LOCK 유지"
+    },
+    {
+     "id": "OEM-SR-002-C3",
+     "text": "LOCK과 억제의 원인(이유코드) 기록(가정 A-21)"
+    },
+    {
+     "id": "OEM-SR-002-C4",
+     "text": "좌/우 도어를 독립적으로 판단"
+    }
+   ]
+  },
+  {
+   "id": "OEM-SR-003",
+   "title": "입력 유효성과 freshness 검증 (ASIL B 입력)",
+   "text": "SW는 안전 관련 입력의 유효성과 freshness를 확인하고 비정상 입력을 정의된 방식으로 처리해야 한다. 수용기준: 필수 입력이 200 ms를 초과해 갱신되지 않으면 100 ms 이내 DEGRADED 상태가 되고, 형식, 범위 오류는 평가 전에 거절된다.",
+   "conditions": [
+    {
+     "id": "OEM-SR-003-C1",
+     "text": "형식·범위·열거·누락 오류 입력은 INVALID로 거절되어 평가에서 제외"
+    },
+    {
+     "id": "OEM-SR-003-C2",
+     "text": "입력 나이가 200 ms를 초과하면 STALE이 되어 DEGRADED(200 ms 이하는 유효)"
+    },
+    {
+     "id": "OEM-SR-003-C3",
+     "text": "DEGRADED·무효 입력 시 출력 유지와 안전 입력 적용(가정 A-17, A-18)"
+    },
+    {
+     "id": "OEM-SR-003-C4",
+     "text": "어떤 입력 조합에서도 정의된 출력과 상태(비기능: 강건성, 파생)"
+    },
+    {
+     "id": "OEM-SR-003-C5",
+     "text": "200 ms 초과 시점부터 100 ms 이내 DEGRADED(비기능: 시간)"
+    }
+   ]
+  },
+  {
+   "id": "OEM-SR-004",
+   "title": "sensor_fault 시 새 명령 미적용 (ASIL B 입력)",
+   "text": "SW는 정규화 입력의 sensor_fault가 TRUE이면 새 명령을 적용하지 않고 직전 확정 출력을 유지해야 한다. 수용기준: sensor_fault=TRUE인 첫 평가주기에 좌, 우 출력이 유지되고 FAULT 상태와 경고코드가 제공된다.",
+   "conditions": [
+    {
+     "id": "OEM-SR-004-C1",
+     "text": "sensor_fault=TRUE이면 새 명령을 적용하지 않고 출력 유지"
+    },
+    {
+     "id": "OEM-SR-004-C2",
+     "text": "첫 평가주기에 FAULT 상태와 경고코드 SENSOR_FAULT 제공"
+    },
+    {
+     "id": "OEM-SR-004-C3",
+     "text": "sensor_fault=FALSE이면 정상 처리(FAULT 아님)"
+    }
+   ]
+  },
+  {
+   "id": "OEM-FR-007",
+   "title": "점화 OFF 시 해제와 OFF 상태 (QM)",
+   "text": "SW는 ignition_on이 FALSE이면 논리 차일드락 출력을 초기 해제 상태로 전환해야 한다. 수용기준: ignition_on=FALSE인 첫 평가주기에 좌, 우 출력이 RELEASE이고 OFF 상태와 ignition_off 이유가 제공된다.",
+   "conditions": [
+    {
+     "id": "OEM-FR-007-C1",
+     "text": "ignition_on=FALSE인 첫 평가주기에 양쪽 RELEASE"
+    },
+    {
+     "id": "OEM-FR-007-C2",
+     "text": "OFF 상태 제공"
+    },
+    {
+     "id": "OEM-FR-007-C3",
+     "text": "ignition_off 이유코드 제공(IGNITION_OFF)"
+    },
+    {
+     "id": "OEM-FR-007-C4",
+     "text": "유효하지 않은 ignition_on 입력은 해제를 일으키지 않음(파생)"
+    }
+   ]
+  }
+ ],
+ "test_cases": [
+  {
+   "id": "STC-F-001",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C1",
+    "OEM-SR-001-C3"
+   ],
+   "purpose": "충돌 CONFIRMED가 접근위험 LOCK보다 우선하여 양쪽을 해제하는지 확인(유효 CONFIRMED 동치 클래스)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED, rear_left_approach_risk=TRUE, rear_right_approach_risk=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL, 이유코드=없음",
+   "techniques": [
+    "동치 클래스 분할",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-002",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C2"
+   ],
+   "purpose": "CONFIRMED 수신 이후 입력이 NONE으로 돌아가고 접근위험 TRUE가 계속되어도 해제가 유지되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED(1주기). t=110~1100 ms(100회): crash_status=NONE, 양쪽 접근위험 TRUE, ignition_on=TRUE",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 CONFIRMED 스냅샷을 주입한다",
+    "t=110 ms부터 1100 ms까지 10 ms마다 crash_status=NONE, 양쪽 접근위험 TRUE 스냅샷을 주입하고 매 평가 결과를 기록한다"
+   ],
+   "expected": "t=100~1100 ms 모든 평가에서 LEFT=RELEASE, RIGHT=RELEASE, 이유코드=없음",
+   "techniques": [
+    "상태 전이",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-003",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C4"
+   ],
+   "purpose": "충돌 NONE(CONFIRMED가 아닌 유효 값)은 출력을 바꾸지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: 정상 스냅샷(crash_status=NONE)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 정상 스냅샷을 주입한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=NORMAL, 이유코드=없음",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-004",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C4"
+   ],
+   "purpose": "충돌 PENDING은 출력을 바꾸지 않고 이유코드를 남기는지 확인(가정 A-07)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=PENDING, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 PENDING 스냅샷을 주입한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=NORMAL, 이유코드={CRASH_PENDING}",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "사양서에 PENDING 동작이 없어 가정 A-07(출력 불변, 이유코드 기록)에서 기대값을 도출했다. OEM 질의 Q6."
+  },
+  {
+   "id": "STC-F-005",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C1",
+    "OEM-SR-001-C3"
+   ],
+   "purpose": "SW 초기화 직후 첫 스냅샷이 CONFIRMED이면 같은 평가주기에 접근위험보다 우선해 해제하는지 확인",
+   "preconditions": "child_lock_init으로 SW를 초기화한다",
+   "inputs": "t=0 ms(초기화 후 첫 스냅샷): crash_status=CONFIRMED, 양쪽 접근위험 TRUE, ignition_on=TRUE, sensor_fault=FALSE",
+   "procedure": [
+    "SW를 초기화한다",
+    "t=0 ms에 첫 스냅샷을 주입하고 평가한다",
+    "t=0 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL, 이유코드=없음",
+   "techniques": [
+    "WoW 검증",
+    "동치 클래스 분할"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "초기화 직후 첫 입력 엣지."
+  },
+  {
+   "id": "STC-F-006",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-003-C3"
+   ],
+   "purpose": "필수 입력 하나가 무효(DEGRADED)여도 유효한 CONFIRMED는 적용되는지 확인(가정 A-17)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED, sensor_fault 필드 누락(present=0), 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=DEGRADED, 이유코드=없음",
+   "techniques": [
+    "WoW 검증",
+    "동치 클래스 분할"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "DEGRADED 중 CONFIRMED 적용은 가정 A-17(SSR-004) 근거. OEM 질의 Q14."
+  },
+  {
+   "id": "STC-F-007",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-004"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-004-C1"
+   ],
+   "purpose": "sensor_fault=TRUE 중에도 유효한 CONFIRMED는 해제하는지 확인(가정 A-02)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED, sensor_fault=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=FAULT, 이유코드={SENSOR_FAULT}",
+   "techniques": [
+    "WoW 검증",
+    "동치 클래스 분할"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "가정 A-02(SSR-005). OEM 질의 Q2."
+  },
+  {
+   "id": "STC-NF-001",
+   "category": "비기능",
+   "basis_ids": [
+    "OEM-SR-001"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C5"
+   ],
+   "purpose": "충돌 CONFIRMED 수신부터 해제까지 300 ms 이내인지 확인(10 ms 주기에서 같은 주기)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED 스냅샷 수신(SW 시계 t=100 ms). 평가 호출은 t=100, 110, ..., 400 ms",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 CONFIRMED 스냅샷을 주입하고, 수신 시각을 T0로 기록한다",
+    "t=100 ms부터 400 ms까지 10 ms마다 평가를 호출하고 각 시각의 LEFT, RIGHT를 기록한다",
+    "RIGHT와 LEFT가 처음 RELEASE가 된 시각 T1을 구한다"
+   ],
+   "expected": "T1 − T0 ≤ 300 ms (측정값 0 ms, 첫 평가에서 RELEASE). t=100~400 ms 모든 평가에서 LEFT=RELEASE, RIGHT=RELEASE",
+   "techniques": [
+    "경계값 분석",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "시간 경계: 300 ms 이내. 평가주기 10 ms에서는 같은 주기에 해제되므로 여유가 크다."
+  },
+  {
+   "id": "STC-F-010",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C1",
+    "OEM-SR-002-C3",
+    "OEM-SR-002-C4"
+   ],
+   "purpose": "좌측 접근위험 TRUE에서 좌측만 LOCK되고 원인이 기록되는지 확인(유효 TRUE 동치 클래스, 좌우 독립)",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, state=NORMAL, 이유코드={APPROACH_RISK_LOCK}",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-011",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C1",
+    "OEM-SR-002-C4"
+   ],
+   "purpose": "우측 접근위험 TRUE에서 우측만 LOCK되는지 확인(좌우 독립)",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_right_approach_risk=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=LOCK, state=NORMAL, 이유코드={APPROACH_RISK_LOCK}",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-012",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C1"
+   ],
+   "purpose": "양쪽 접근위험이 동시에 TRUE이면 양쪽 모두 LOCK되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: 양쪽 접근위험=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=NORMAL, 이유코드={APPROACH_RISK_LOCK}",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-013",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C2",
+    "OEM-SR-002-C3"
+   ],
+   "purpose": "접근위험 TRUE인 좌측 도어의 해제 요청이 억제되고 원인이 기록되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=TRUE. t=70 ms: rear_left_approach_risk=TRUE + 운전자 요청(side=left, action=unlock, source=physical_button)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 접근위험 스냅샷을 주입한다",
+    "t=70 ms에 해제 요청이 포함된 스냅샷을 주입하고 평가한다",
+    "t=70 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, 이유코드={APPROACH_RISK_LOCK, APPROACH_RISK_SUPPRESS}",
+   "techniques": [
+    "동치 클래스 분할",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-014",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C2"
+   ],
+   "purpose": "side=all 해제 요청이 도어별로 판단되어 위험 도어(좌)만 억제 이유를 남기는지 확인",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=TRUE + 운전자 요청(side=all, action=unlock, source=avn)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, 이유코드={APPROACH_RISK_LOCK, APPROACH_RISK_SUPPRESS}",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-015",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C2",
+    "OEM-SR-002-C4"
+   ],
+   "purpose": "위험이 없는 도어(우)에 대한 해제 요청은 억제 이유를 남기지 않는지 확인(좌우 독립)",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=TRUE + 운전자 요청(side=right, action=unlock, source=voice)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, 이유코드={APPROACH_RISK_LOCK} (APPROACH_RISK_SUPPRESS 없음)",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-016",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C2"
+   ],
+   "purpose": "접근위험이 없을 때의 해제 요청은 억제 이유를 남기지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: 접근위험 FALSE + 운전자 요청(side=left, action=unlock, source=mobile_app)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "이유코드에 APPROACH_RISK_SUPPRESS가 없다. state=NORMAL",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "요청 적용 결과(출력 변화)는 FR-001(이터레이션 2) 범위라 판정하지 않는다."
+  },
+  {
+   "id": "STC-F-017",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C2"
+   ],
+   "purpose": "미등록 side 값(9)의 해제 요청은 거절되어 억제 이유를 남기지 않는지 확인(무효 동치 클래스)",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=TRUE + 운전자 요청(side=9, action=unlock, source=avn)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, 이유코드={APPROACH_RISK_LOCK} (요청이 거절되어 SUPPRESS 없음)",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "OEM-IF-004 \"미등록 enum 거절\". side 허용 범위 0~2의 상한 바깥(3 대신 9)을 대표값으로 썼다. 경계 3, -1은 단위 테스트에서 확인."
+  },
+  {
+   "id": "STC-F-018",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "접근위험 TRUE 도어는 점화 OFF에서도 LOCK을 유지하는지 확인(가정 A-01 순위 3 > 6)",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=TRUE, ignition_on=FALSE",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, state=OFF, 이유코드={APPROACH_RISK_LOCK, IGNITION_OFF}",
+   "techniques": [
+    "WoW 검증",
+    "요구사항 분석"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "가정 A-01. OEM 질의 Q1."
+  },
+  {
+   "id": "STC-F-019",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C1"
+   ],
+   "purpose": "접근위험 입력이 TRUE/FALSE로 매 주기 번갈아 바뀌어도 한 번 LOCK된 도어가 해제되지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60~150 ms(10회): rear_left_approach_risk를 TRUE, FALSE, TRUE, ... 로 번갈아 주입(첫 주기 TRUE), 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms부터 150 ms까지 10 ms마다 번갈아 주입하고 매 평가 결과를 기록한다"
+   ],
+   "expected": "t=60~150 ms 모든 평가에서 LEFT=LOCK, RIGHT=RELEASE, state=NORMAL",
+   "techniques": [
+    "WoW 검증",
+    "상태 전이"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "이벤트 빠른 반복 엣지. 위험이 사라져도 해제 요청 없이는 유지(가정 A-08)."
+  },
+  {
+   "id": "STC-F-020",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-002-C1"
+   ],
+   "purpose": "접근위험이 사라진 뒤 1초 동안 좌측 LOCK이 유지되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=TRUE. t=70~1060 ms(100회): 정상 스냅샷(위험 FALSE)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 접근위험 스냅샷을 주입한다",
+    "t=70~1060 ms 10 ms마다 정상 스냅샷을 주입하고 매 평가 결과를 기록한다"
+   ],
+   "expected": "t=60~1060 ms 모든 평가에서 LEFT=LOCK, RIGHT=RELEASE, 이유코드(t≥70)=없음",
+   "techniques": [
+    "상태 전이"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "해제 조건이 없는 상태에서 LOCK 유지(가정 A-08, FR-001은 이터레이션 2)."
+  },
+  {
+   "id": "STC-F-030",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C1"
+   ],
+   "purpose": "crash_status=3(최댓값 2 바깥)이 INVALID로 거절되어 해제를 일으키지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=3, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=DEGRADED, crash_status 유효성=INVALID, 이유코드=없음",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-031",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C1"
+   ],
+   "purpose": "crash_status=-1(최솟값 0 바깥)이 INVALID로 거절되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=-1, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=DEGRADED, crash_status 유효성=INVALID, 이유코드=없음",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-032",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C1"
+   ],
+   "purpose": "rear_left_approach_risk=2(boolean 상한 바깥)가 INVALID로 거절되고 LOCK으로 해석되지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_left_approach_risk=2, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=DEGRADED, rear_left_approach_risk 유효성=INVALID, 이유코드={APPROACH_INPUT_UNRELIABLE}",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-033",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C1"
+   ],
+   "purpose": "rear_right_approach_risk=-1(하한 바깥)이 INVALID로 거절되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: rear_right_approach_risk=-1, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=DEGRADED, rear_right_approach_risk 유효성=INVALID, 이유코드={APPROACH_INPUT_UNRELIABLE}",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-034",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C1",
+    "OEM-FR-007-C4"
+   ],
+   "purpose": "ignition_on=2가 INVALID로 거절되어 해제를 일으키지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: ignition_on=2, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=DEGRADED, ignition_on 유효성=INVALID, 이유코드=없음 (IGNITION_OFF 없음)",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-035",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C1",
+    "OEM-FR-007-C4"
+   ],
+   "purpose": "ignition_on 필드 누락(present=0)이 INVALID로 처리되어 해제를 일으키지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: ignition_on 필드 누락, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=DEGRADED, ignition_on 유효성=INVALID, 이유코드=없음",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-036",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003",
+    "OEM-SR-004"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C1",
+    "OEM-SR-004-C1"
+   ],
+   "purpose": "sensor_fault=2가 INVALID로 거절되어 FAULT가 아닌 DEGRADED가 되고 점화 OFF 해제를 막는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: sensor_fault=2, ignition_on=FALSE(해제 가능 여부를 관찰하기 위한 보조 입력), 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=DEGRADED, sensor_fault 유효성=INVALID, 이유코드=없음 (SENSOR_FAULT, IGNITION_OFF 없음)",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "보조 입력 ignition_on=FALSE는 유효하며, 무효 입력이 sensor_fault 하나뿐이다."
+  },
+  {
+   "id": "STC-F-037",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C2"
+   ],
+   "purpose": "입력 나이가 정확히 200 ms일 때 STALE이 아닌지 확인(경계: 200 ms 이하는 유효)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=0~90 ms 정상 스냅샷(사전조건) 이후 입력을 더 주입하지 않는다(마지막 갱신 t=90 ms). 평가만 수신 없이(스냅샷 없음) 호출한다. 평가 시각 t=290 ms(나이 200 ms)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=290 ms에 스냅샷 없이 평가한다",
+    "t=290 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "state=NORMAL, 모든 입력 유효성=VALID, LEFT=LOCK, RIGHT=LOCK, 이유코드=없음",
+   "techniques": [
+    "경계값 분석",
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-038",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C2"
+   ],
+   "purpose": "입력 나이가 210 ms(200 ms 초과)일 때 STALE이 되어 DEGRADED가 되는지 확인(경계 바깥)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=0~90 ms 정상 스냅샷(사전조건) 이후 입력을 더 주입하지 않는다(마지막 갱신 t=90 ms). 평가만 수신 없이(스냅샷 없음) 호출한다. 평가 시각 t=300 ms(나이 210 ms)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=300 ms에 스냅샷 없이 평가한다",
+    "t=300 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "state=DEGRADED, 모든 입력 유효성=STALE, LEFT=LOCK, RIGHT=LOCK, 이유코드={APPROACH_INPUT_UNRELIABLE}",
+   "techniques": [
+    "경계값 분석",
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "평가주기 10 ms이므로 경계 바깥 값은 200 ms + 1 평가주기(210 ms)로 정했다(해상도 가정)."
+  },
+  {
+   "id": "STC-F-039",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C2"
+   ],
+   "purpose": "입력 나이 190 ms(경계 안쪽)에서 NORMAL인지 확인(안전 요구 3-value 경계)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=0~90 ms 정상 스냅샷(사전조건) 이후 입력을 더 주입하지 않는다(마지막 갱신 t=90 ms). 평가만 수신 없이(스냅샷 없음) 호출한다. 평가 시각 t=280 ms(나이 190 ms)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=280 ms에 스냅샷 없이 평가한다",
+    "t=280 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "state=NORMAL, 모든 입력 유효성=VALID, LEFT=LOCK, RIGHT=LOCK",
+   "techniques": [
+    "경계값 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-040",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C2"
+   ],
+   "purpose": "100 ms 주기로 입력이 계속 갱신되면 1초 동안 NORMAL을 유지하는지 확인(유효 동치 클래스)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100~1000 ms: 100 ms마다 정상 스냅샷 주입. 평가는 매 10 ms 호출(주입이 없는 주기는 스냅샷 없이)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms부터 1000 ms까지 100 ms마다 정상 스냅샷을 주입하고 10 ms마다 평가한 결과를 기록한다"
+   ],
+   "expected": "t=100~1000 ms 모든 평가에서 state=NORMAL, 모든 입력 유효성=VALID, LEFT=LOCK, RIGHT=LOCK",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-041",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C3"
+   ],
+   "purpose": "DEGRADED에서는 점화 OFF 해제가 적용되지 않는지 확인(가정 A-17)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status 필드 누락(→DEGRADED), ignition_on=FALSE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=DEGRADED, 이유코드=없음 (IGNITION_OFF 없음)",
+   "techniques": [
+    "WoW 검증",
+    "요구사항 분석"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "가정 A-17. OEM 질의 Q14."
+  },
+  {
+   "id": "STC-F-042",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003",
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C3",
+    "OEM-SR-002-C1"
+   ],
+   "purpose": "DEGRADED에서도 유효한 접근위험 TRUE는 LOCK되는지 확인(가정 A-17)",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: sensor_fault 필드 누락(→DEGRADED), rear_left_approach_risk=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, state=DEGRADED, 이유코드={APPROACH_RISK_LOCK}",
+   "techniques": [
+    "WoW 검증",
+    "요구사항 분석"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "가정 A-17. OEM 질의 Q14."
+  },
+  {
+   "id": "STC-F-043",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C3"
+   ],
+   "purpose": "STALE에서 정상 수신이 재개되면 NORMAL로 복귀하고 출력이 유지되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=0~90 ms 정상 스냅샷(사전조건) 이후 입력을 더 주입하지 않는다(마지막 갱신 t=90 ms). 평가만 수신 없이(스냅샷 없음) 호출한다. t=300 ms 평가(DEGRADED) 후 t=310 ms에 정상 스냅샷 주입",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=300 ms에 스냅샷 없이 평가해 DEGRADED를 확인한다",
+    "t=310 ms에 정상 스냅샷을 주입하고 평가한다",
+    "t=310 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "state=NORMAL, 모든 입력 유효성=VALID, LEFT=LOCK, RIGHT=LOCK, 이유코드=없음",
+   "techniques": [
+    "상태 전이"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-044",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-003",
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C3",
+    "OEM-SR-002-C2"
+   ],
+   "purpose": "접근위험 입력이 누락되면 그 도어를 직전 출력으로 유지하고 해제 요청을 적용하지 않는지 확인(가정 A-18)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: rear_left_approach_risk 필드 누락 + 운전자 요청(side=left, action=unlock, source=avn), 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=DEGRADED, 이유코드={APPROACH_INPUT_UNRELIABLE} (APPROACH_RISK_SUPPRESS 없음)",
+   "techniques": [
+    "WoW 검증",
+    "요구사항 분석"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "가정 A-18(SSR-016a, b). 안전측이 유지인지 LOCK인지 OEM 판단 필요: Q15."
+  },
+  {
+   "id": "STC-NF-002",
+   "category": "비기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C5"
+   ],
+   "purpose": "마지막 갱신 후 200 ms를 넘긴 시점부터 100 ms 이내에 DEGRADED가 되는지 확인(평가주기 100 ms 최악 경우)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "마지막 갱신 t=90 ms. 이후 스냅샷 없이 평가를 100 ms 주기(t=190, 290, 390 ms)로 호출",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=190, 290, 390 ms에 스냅샷 없이 평가하고 각 시점 state를 기록한다",
+    "처음 DEGRADED가 된 시각 T1을 구한다. 나이 200 ms 초과 시점 T0=t=290 ms 이후로 본다"
+   ],
+   "expected": "t=190 ms: NORMAL, t=290 ms(나이 200 ms): NORMAL, t=390 ms(나이 300 ms): DEGRADED. T1(=390 ms) − (마지막 갱신 90 ms + 200 ms) = 100 ms ≤ 100 ms",
+   "techniques": [
+    "경계값 분석",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "평가주기가 100 ms를 넘으면 이 요구를 보장할 수 없다(호출자 책임, SWR-L-001). 평가주기 10 ms에서는 최대 10 ms."
+  },
+  {
+   "id": "STC-NF-003",
+   "category": "비기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C4"
+   ],
+   "purpose": "범위 밖·누락·형식 오류 값이 모든 입력에 계속 들어와도 정의된 출력과 상태를 유지하는지 확인(강건성)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100~1090 ms(100회): 매 주기 모든 필수 입력의 value를 {-2147483648, 2147483647, 255, -1, 3} 순환, present를 {1, 1, 2, 0, -1} 순환으로 주입 + 요청 필드도 같은 방식",
+   "procedure": [
+    "사전조건을 수행한다",
+    "위 입력을 10 ms마다 100회 주입하고 매 평가 결과를 기록한다"
+   ],
+   "expected": "SW가 비정상 종료·정지하지 않는다. 모든 평가에서 LEFT, RIGHT ∈ {LOCK, RELEASE}이고 LEFT=LOCK, RIGHT=LOCK 유지, state=DEGRADED, 모든 필수 입력 유효성=INVALID",
+   "techniques": [
+    "동치 클래스 분할",
+    "경계값 분석",
+    "오류 추정"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "결함 주입(오류 추정) 기법. 입력 정의 범위 밖의 극단 값으로 신뢰성(결함 허용) 확인."
+  },
+  {
+   "id": "STC-NF-004",
+   "category": "비기능",
+   "basis_ids": [
+    "OEM-SR-003"
+   ],
+   "condition_ids": [
+    "OEM-SR-003-C2"
+   ],
+   "purpose": "SW 시계가 32비트 최댓값을 넘어 0으로 돌아가는 구간에서도 계속 갱신되는 입력이 STALE이 되지 않는지 확인",
+   "preconditions": "child_lock_init으로 SW를 초기화한다",
+   "inputs": "t=4294967260~4294967295 ms(10 ms 주기)와 이어서 t=4, 14, 24, 34 ms(래핑 후)에 정상 스냅샷(ignition_on=TRUE 등) 주입",
+   "procedure": [
+    "SW를 초기화한다",
+    "래핑 전 4회와 래핑 후 4회의 정상 스냅샷을 순서대로 주입하며 매 평가 결과를 기록한다"
+   ],
+   "expected": "모든 평가에서 state=NORMAL, 모든 입력 유효성=VALID, LEFT=RELEASE, RIGHT=RELEASE",
+   "techniques": [
+    "WoW 검증",
+    "경계값 분석"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "타이머 오버플로 엣지. 래핑 후에도 스냅샷이 계속 들어오는 경우만 판정한다(수신이 끊긴 채 래핑하는 경우는 설계 한계로 이터레이션 4 잔여 문제)."
+  },
+  {
+   "id": "STC-F-060",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-004"
+   ],
+   "condition_ids": [
+    "OEM-SR-004-C1",
+    "OEM-SR-004-C2"
+   ],
+   "purpose": "sensor_fault=TRUE인 첫 평가주기에 출력이 유지되고 FAULT 상태와 경고코드가 제공되는지 확인(유효 TRUE 동치 클래스)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: sensor_fault=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=FAULT, 이유코드={SENSOR_FAULT}",
+   "techniques": [
+    "동치 클래스 분할",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-061",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-004",
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-004-C1"
+   ],
+   "purpose": "sensor_fault=TRUE에서 점화 OFF와 해제 요청(새 명령)이 적용되지 않는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: sensor_fault=TRUE, ignition_on=FALSE, 운전자 요청(side=all, action=unlock, source=physical_button)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=FAULT, 이유코드={SENSOR_FAULT} (IGNITION_OFF, APPROACH_RISK_SUPPRESS 없음)",
+   "techniques": [
+    "동치 클래스 분할",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-062",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "sensor_fault가 해제(FALSE)된 첫 주기에 보류되었던 점화 OFF 해제가 적용되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: sensor_fault=TRUE, ignition_on=FALSE. t=110 ms: sensor_fault=FALSE, ignition_on=FALSE",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 첫 스냅샷을 주입하고 평가한다",
+    "t=110 ms에 둘째 스냅샷을 주입하고 평가한다",
+    "t=110 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "t=100 ms: LEFT=LOCK, RIGHT=LOCK, state=FAULT. t=110 ms: LEFT=RELEASE, RIGHT=RELEASE, state=OFF, 이유코드={IGNITION_OFF}",
+   "techniques": [
+    "상태 전이"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-063",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-004",
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-SR-004-C1"
+   ],
+   "purpose": "sensor_fault=TRUE에서도 유효한 접근위험 TRUE는 LOCK되는지 확인(가정 A-17)",
+   "preconditions": "SW 초기화 후 t=0~50 ms(10 ms 주기 6회) 정상 스냅샷(crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE)을 주입한다. 결과: LEFT=RELEASE, RIGHT=RELEASE, state=NORMAL",
+   "inputs": "t=60 ms: sensor_fault=TRUE, rear_left_approach_risk=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=60 ms에 스냅샷을 주입하고 평가한다",
+    "t=60 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, state=FAULT, 이유코드={APPROACH_RISK_LOCK, SENSOR_FAULT}",
+   "techniques": [
+    "WoW 검증",
+    "요구사항 분석"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "OEM-SR-004 \"직전 출력 유지\"와 OEM-SR-002 \"LOCK\"의 충돌을 가정 A-17로 해소. OEM 질의 Q14."
+  },
+  {
+   "id": "STC-F-064",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "sensor_fault가 매 주기 TRUE/FALSE로 번갈아 바뀔 때 TRUE 주기는 유지, FALSE 주기에 점화 OFF 해제가 적용되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: sensor_fault=TRUE, t=110 ms: FALSE, ignition_on=FALSE 고정",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 TRUE 스냅샷, t=110 ms에 FALSE 스냅샷을 주입하며 각각 평가한다",
+    "t=120 ms에 TRUE 스냅샷을 주입하고 평가한다",
+    "t=120 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "t=100 ms: LOCK/LOCK FAULT. t=110 ms: RELEASE/RELEASE OFF. t=120 ms: RELEASE/RELEASE FAULT, 이유코드={SENSOR_FAULT}",
+   "techniques": [
+    "WoW 검증",
+    "상태 전이"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "이벤트 빠른 반복 엣지. 해제된 출력은 FAULT가 되어도 유지(재잠금 없음)."
+  },
+  {
+   "id": "STC-F-065",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-004",
+    "OEM-FR-007",
+    "OEM-SR-001"
+   ],
+   "condition_ids": [
+    "OEM-SR-004-C3",
+    "OEM-FR-007-C4"
+   ],
+   "purpose": "모든 입력이 정상(sensor_fault=FALSE, ignition_on=TRUE, crash NONE)이면 출력과 상태가 변하지 않고 FAULT·OFF가 되지 않는지 확인(정상 동치 클래스)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: 정상 스냅샷(sensor_fault=FALSE, ignition_on=TRUE)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 정상 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=NORMAL, 이유코드=없음",
+   "techniques": [
+    "동치 클래스 분할"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-070",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-FR-007-C1",
+    "OEM-FR-007-C2",
+    "OEM-FR-007-C3"
+   ],
+   "purpose": "ignition_on=FALSE인 첫 평가주기에 양쪽이 해제되고 OFF 상태와 ignition_off 이유가 제공되는지 확인(유효 FALSE 동치 클래스)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: ignition_on=FALSE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=OFF, 이유코드={IGNITION_OFF}",
+   "techniques": [
+    "동치 클래스 분할",
+    "요구사항 분석"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": ""
+  },
+  {
+   "id": "STC-F-071",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-FR-007",
+    "OEM-SR-002"
+   ],
+   "condition_ids": [
+    "OEM-FR-007-C1",
+    "OEM-SR-002-C1"
+   ],
+   "purpose": "점화 OFF와 좌 접근위험 TRUE가 함께 오면 좌측만 LOCK을 유지하고 우측은 해제되는지 확인(가정 A-01)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: ignition_on=FALSE, rear_left_approach_risk=TRUE, 그 밖은 정상",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=RELEASE, state=OFF, 이유코드={APPROACH_RISK_LOCK, IGNITION_OFF}",
+   "techniques": [
+    "WoW 검증",
+    "요구사항 분석"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "가정 A-01(순위 3 > 6). OEM 질의 Q1."
+  },
+  {
+   "id": "STC-F-072",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-FR-007-C1",
+    "OEM-FR-007-C2",
+    "OEM-FR-007-C3"
+   ],
+   "purpose": "SW 초기화 직후 첫 스냅샷이 ignition_on=FALSE이면 같은 주기에 OFF 상태와 이유가 제공되는지 확인",
+   "preconditions": "child_lock_init으로 SW를 초기화한다",
+   "inputs": "t=0 ms(첫 스냅샷): ignition_on=FALSE, crash_status=NONE, 양쪽 접근위험 FALSE, sensor_fault=FALSE",
+   "procedure": [
+    "SW를 초기화한다",
+    "t=0 ms에 첫 스냅샷을 주입하고 평가한다",
+    "t=0 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=OFF, 이유코드={IGNITION_OFF}",
+   "techniques": [
+    "WoW 검증"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "초기화 직후 첫 입력 엣지."
+  },
+  {
+   "id": "STC-F-073",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-FR-007-C1",
+    "OEM-FR-007-C2"
+   ],
+   "purpose": "점화가 OFF→ON→OFF로 반복될 때 ON 구간에서 다시 잠기지 않고 OFF에서 OFF 상태가 되는지 확인",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: ignition_on=FALSE, t=110 ms: ignition_on=TRUE, t=120 ms: ignition_on=FALSE",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100, 110, 120 ms에 각각 스냅샷을 주입하고 평가한다",
+    "t=120 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "t=100 ms: RELEASE/RELEASE OFF. t=110 ms: RELEASE/RELEASE NORMAL(이유코드 없음). t=120 ms: RELEASE/RELEASE OFF, 이유코드={IGNITION_OFF}",
+   "techniques": [
+    "WoW 검증",
+    "상태 전이"
+   ],
+   "suggested": true,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "이벤트 빠른 반복 엣지. 점화 ON에서 자동 잠금은 FR-002(이터레이션 2) 범위."
+  },
+  {
+   "id": "STC-F-101",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 1)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=PENDING, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=FALSE, 요청=운전자 요청(side=all, action=unlock, source=voice)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=NORMAL, 이유코드={CRASH_PENDING}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 1. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-102",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 2)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=PENDING, rear_left_approach_risk=TRUE, rear_right_approach_risk=TRUE, ignition_on=FALSE, sensor_fault=TRUE, 요청=운전자 요청(side=left, action=unlock, source=avn)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=FAULT, 이유코드={APPROACH_RISK_LOCK, APPROACH_RISK_SUPPRESS, CRASH_PENDING, SENSOR_FAULT}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 2. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-103",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 3)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=NONE, rear_left_approach_risk=FALSE, rear_right_approach_risk=TRUE, ignition_on=TRUE, sensor_fault=FALSE, 요청=운전자 요청(side=left, action=unlock, source=avn)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=NORMAL, 이유코드={APPROACH_RISK_LOCK}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 3. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-104",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 4)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=NONE, rear_left_approach_risk=TRUE, rear_right_approach_risk=FALSE, ignition_on=FALSE, sensor_fault=TRUE, 요청=운전자 요청(side=all, action=unlock, source=voice)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=FAULT, 이유코드={APPROACH_RISK_LOCK, APPROACH_RISK_SUPPRESS, SENSOR_FAULT}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 4. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-105",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 5)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=PENDING, rear_left_approach_risk=FALSE, rear_right_approach_risk=TRUE, ignition_on=FALSE, sensor_fault=FALSE, 요청=없음",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=LOCK, state=OFF, 이유코드={APPROACH_RISK_LOCK, CRASH_PENDING, IGNITION_OFF}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 5. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-106",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 6)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED, rear_left_approach_risk=TRUE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=TRUE, 요청=없음",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=FAULT, 이유코드={SENSOR_FAULT}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 6. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-107",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 7)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED, rear_left_approach_risk=TRUE, rear_right_approach_risk=TRUE, ignition_on=FALSE, sensor_fault=FALSE, 요청=운전자 요청(side=all, action=unlock, source=voice)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=OFF, 이유코드={IGNITION_OFF}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 7. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-108",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 8)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=CONFIRMED, rear_left_approach_risk=FALSE, rear_right_approach_risk=FALSE, ignition_on=TRUE, sensor_fault=TRUE, 요청=운전자 요청(side=left, action=unlock, source=avn)",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=RELEASE, RIGHT=RELEASE, state=FAULT, 이유코드={SENSOR_FAULT}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 8. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  },
+  {
+   "id": "STC-F-109",
+   "category": "기능",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "condition_ids": [
+    "OEM-SR-001-C3",
+    "OEM-SR-002-C2",
+    "OEM-SR-004-C1",
+    "OEM-FR-007-C1"
+   ],
+   "purpose": "입력 6개의 조합 상호작용에서 우선순위가 요구사항대로인지 확인(PICT 행 9)",
+   "preconditions": "SW 초기화 후 t=0~40 ms(5회) 양쪽 접근위험 TRUE(그 밖은 정상), t=50~90 ms(5회) 정상 스냅샷을 주입한다. 결과: LEFT=LOCK, RIGHT=LOCK(위험이 사라져도 유지), state=NORMAL",
+   "inputs": "t=100 ms: crash_status=NONE, rear_left_approach_risk=TRUE, rear_right_approach_risk=TRUE, ignition_on=TRUE, sensor_fault=FALSE, 요청=없음",
+   "procedure": [
+    "사전조건을 수행한다",
+    "t=100 ms에 입력 스냅샷을 주입하고 평가한다",
+    "t=100 ms 평가 결과(LEFT, RIGHT, state, 이유코드, 입력 유효성)를 읽는다"
+   ],
+   "expected": "LEFT=LOCK, RIGHT=LOCK, state=NORMAL, 이유코드={APPROACH_RISK_LOCK}",
+   "techniques": [
+    "페어와이즈(PICT)"
+   ],
+   "suggested": false,
+   "environment": "PC/SIL (child_lock_step 호출, 평가주기 10 ms, SW 시계 주입)",
+   "notes": "PICT 모델 system_pairwise 행 9. 기대값은 가정 A-01(우선순위)과 A-17(FAULT·DEGRADED 규칙)에서 계산했다. 이유코드는 순서 없는 집합이다."
+  }
+ ],
+ "pict_models": [
+  {
+   "name": "system_pairwise",
+   "basis_ids": [
+    "OEM-SR-001",
+    "OEM-SR-002",
+    "OEM-SR-004",
+    "OEM-FR-007"
+   ],
+   "model": "Crash: NONE, PENDING, CONFIRMED\nRiskL: FALSE, TRUE\nRiskR: FALSE, TRUE\nIgnition: ON, OFF\nFault: FALSE, TRUE\nRequest: NONE, UNLOCK_LEFT, UNLOCK_ALL\n",
+   "output": "Crash\tRiskL\tRiskR\tIgnition\tFault\tRequest\nPENDING\tFALSE\tFALSE\tON\tFALSE\tUNLOCK_ALL\nPENDING\tTRUE\tTRUE\tOFF\tTRUE\tUNLOCK_LEFT\nNONE\tFALSE\tTRUE\tON\tFALSE\tUNLOCK_LEFT\nNONE\tTRUE\tFALSE\tOFF\tTRUE\tUNLOCK_ALL\nPENDING\tFALSE\tTRUE\tOFF\tFALSE\tNONE\nCONFIRMED\tTRUE\tFALSE\tON\tTRUE\tNONE\nCONFIRMED\tTRUE\tTRUE\tOFF\tFALSE\tUNLOCK_ALL\nCONFIRMED\tFALSE\tFALSE\tON\tTRUE\tUNLOCK_LEFT\nNONE\tTRUE\tTRUE\tON\tFALSE\tNONE"
+  }
+ ]
+}
