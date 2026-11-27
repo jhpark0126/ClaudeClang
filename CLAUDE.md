@@ -120,6 +120,7 @@
 | 조합 테스트 | PICT | `unit-test`, `integration-test` 스킬에서 사용 |
 | 문서화 | Doxygen | 주석 형식 검사와 사용자 정의 태그(2.4) 처리 |
 | 코드 스타일 | clang-format (추천) | 스타일 논쟁과 리뷰 노이즈를 줄임 |
+| 검증 결과 대시보드 | [VERReport](https://github.com/jhpark0126/VERReport) | gtest·llvm-cov·Cppcheck·Lizard 결과를 HTML 한 묶음으로. 버전은 빌드 인자 `VERREPORT_VERSION` |
 
 ### 빌드 환경 (Docker)
 - **개발 빌드와 CI 빌드는 같은 Docker 이미지**를 사용한다.
@@ -139,6 +140,7 @@
 - CI 파이프라인(`Jenkinsfile`)은 `claudeclangbuild` 이미지 안에서 `ci/*.sh` 게이트를 실행하고, 2장의 품질 기준을 하나라도 어기면 실패시킨다.
 - Jenkins 실행·관리: `bash scripts/jenkins.sh <up|down|logs|status>`. 관리자 ID는 `admin`, 비밀번호는 `docker/.env`(git에 올라가지 않음).
 - 결과 확인: Jenkins의 테스트 결과(JUnit), 정적 분석(Warnings NG의 Cppcheck), 커버리지(Coverage 플러그인), HTML 리포트(단위 MC/DC, 통합 함수 커버리지, Lizard, Doxygen).
+- 한 화면 요약: Jenkins의 **"검증 결과 대시보드 (VERReport)"** 링크. 빌드 일시, 도구별 판정·차트·표, 모듈 → 파일 → 함수 상세를 본다. 로컬에서는 `bash scripts/dev.sh verreport build/reports -o build/reports/verreport`.
 - 요구사항 커버리지 게이트: `ci/requirement_coverage.sh`가 `docs/requirements/oem-requirements.csv`와 `docs/traceability/trace.csv`를 비교한다. 이터레이션을 마치면 `docs/traceability/iteration.txt`의 `completed_iteration`을 올린다.
 - 게이트 자가 검증: `bash scripts/dev.sh bash ci/selftest/selftest.sh` (정상 샘플은 통과, 망가뜨린 샘플은 각 게이트가 실패하는지 확인).
 

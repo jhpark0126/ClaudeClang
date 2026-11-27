@@ -96,6 +96,15 @@ pipeline {
             publishHTML target: [allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true,
                 reportDir: 'build/reports/doxygen/html', reportFiles: 'index.html', reportName: 'Doxygen 문서']
 
+            // 검증 결과 대시보드 (VERReport): 위 결과 파일을 모아 총괄·상세를 한 묶음으로 보여 준다.
+            // 판정은 각 게이트가 하므로 리포트 생성 실패가 빌드 결과를 바꾸지 않게 한다.
+            sh """docker run --rm --volumes-from "\$JENKINS_CONTAINER_NAME" -w "\$WORKSPACE" \
+                -e BUILD_NUMBER -e JOB_NAME -e BRANCH_NAME -e GIT_BRANCH -e GIT_COMMIT -e BUILD_URL -e WORKSPACE \
+                -e VERREPORT_BUILD_TIME=${currentBuild.startTimeInMillis} \
+                ${IMAGE} verreport build/reports -o build/reports/verreport || true"""
+            publishHTML target: [allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true,
+                reportDir: 'build/reports/verreport', reportFiles: 'index.html', reportName: '검증 결과 대시보드 (VERReport)']
+
             archiveArtifacts artifacts: 'build/reports/**', allowEmptyArchive: true, fingerprint: true
         }
     }

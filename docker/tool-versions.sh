@@ -19,6 +19,7 @@ show cmake        cmake --version
 show ninja        ninja --version
 show cppcheck     cppcheck --version
 show lizard       lizard --version
+show verreport    verreport --version
 show cloc         cloc --version
 show doxygen      doxygen --version
 show pict         sh -c 'pict 2>&1 | head -n 1'
