@@ -207,23 +207,22 @@ return reason
 | FUNC-041 | `cl_status_t child_lock_step(cl_ctx_t *ctx, const cl_raw_input_t *raw, uint32_t now_ms, cl_result_t *out)` | 공개 | 평가주기 1회를 실행한다. | ARCH-005, SWR-I-004~007, L-001, Q-001~003, SSR-008 |
 | FUNC-042 | `static cl_status_t child_lock_commit(cl_ctx_t *ctx, const cl_result_t *result)` | 내부 | 결과를 직전 출력으로 저장한다. | SWR-F-005 |
 
-**FUNC-040**: 널 검사 후 `input_validator_init`, `safety_arbiter_init`을 호출하고 둘 다 `CL_OK`일 때 `previous[]`를 `CL_RELEASE`로 설정.
+**FUNC-040**: `ctx`가 `NULL`이면 `CL_ERR_NULL_ARG`. 아니면 `input_validator_init`, `safety_arbiter_init`의 상태를 합산하고 `previous[]`를 `CL_RELEASE`로 설정한다.
 
 **FUNC-041**:
 ```
-status = CL_OK
-if ctx==NULL or out==NULL: status = CL_ERR_NULL_ARG
-else:
-  status = input_validator_validate(&ctx->validator, raw, now_ms, &validated)
-  if status == CL_OK: status = safety_arbiter_decide(&ctx->arbiter, &validated, &decision)
-  if status == CL_OK: status = ignition_policy_propose(&validated, &proposal)
-  if status == CL_OK: status = output_resolver_resolve(&decision, &proposal, &validated, ctx->previous, &result)
-  if status == CL_OK: *out = result; status = child_lock_commit(ctx, &result)
+status = CL_ERR_NULL_ARG
+if ctx != NULL and out != NULL:
+  status = child_lock_run_pipeline(ctx, raw, now_ms, &result)   # FUNC-043
+  *out = result
+  child_lock_commit(ctx, &result)                               # FUNC-042, 항상 CL_OK
 return status
 ```
-오류 시 `ctx`의 직전 출력은 바뀌지 않고(`commit` 전), `out`도 쓰지 않는다. (`validate`가 입력 상태를 이미 갱신했다면 그 갱신은 유지되며, 오류 원인이 `NULL` 인자뿐이라 실제로 발생하지 않는다.)
+널 인자에서는 `ctx`의 직전 출력과 `out`을 건드리지 않는다.
 
 **FUNC-042**: 도어별로 `previous[door] = result->lock[door]`. 반환 `CL_OK`.
+
+**하위 단계 상태 합산 (DD-D5)**: 하위 모듈 함수는 `NULL` 인자에서만 실패하고, `child_lock`은 호출 전에 `NULL`을 걸러내므로 단계별 실패 분기는 도달할 수 없다. 도달 불가능한 분기는 MC/DC 100%를 막으므로 두지 않는다. 상태 코드는 `CL_OK`(0)와 `CL_ERR_NULL_ARG`(1)뿐이라 단계별 반환값을 비트 OR로 합산해 돌려준다(`_Static_assert`로 값 고정). 하위 모듈에 새 오류 코드를 추가하면 이 합산 방식을 다시 설계해야 한다.
 
 ## 9. 시간 특성 (SSR-008, SSR-022, SWR-L-001)
 `child_lock_step`은 호출 즉시 같은 호출에서 결과를 낸다. CONFIRMED는 수신한 주기에 RELEASE(SSR-008: 300 ms 이내, 같은 주기). 입력 나이가 200 ms를 초과한 첫 호출에서 STALE → DEGRADED(SSR-022: 호출 간격이 10 ms이면 초과 후 최대 10 ms). 호출 간격이 길어지면 지연도 길어지므로 주기 호출은 호출자 책임이다(SWR-L-001, 시험은 `now_ms`를 지정해 재현: SWR-Q-002).
@@ -241,6 +240,7 @@ return status
 | DD-D2 | `present`가 0/1이 아닌 값도 불량으로 취급 | 형식 오류 입력(OEM-IF 오류 처리)을 정수로 재현하기 위함 |
 | DD-D3 | 시각 역행은 age 0으로 방어 | 단조 증가 가정(A-12) 위반 시에도 정의된 동작을 하고 STALE 오판을 막는다. 역행 자체를 감지·보고하지 않는 한계는 이터 4 잔여 문제에 올린다 |
 | DD-D4 | 내부 `static` 함수는 `NULL` 검사를 하지 않는다 | 공개 함수가 한 번 검사하므로 중복 분기를 만들어 MC/DC 불가능 분기를 늘리지 않는다 |
+| DD-D5 | `child_lock`은 하위 단계 상태를 분기 없이 합산(8장) | 도달 불가능한 실패 분기를 없애 MC/DC 100%를 달성하고 하위 오류는 숨기지 않는다 |
 
 ## 13. 추적
 모든 `FUNC`는 ARCH와 SSR/SWR에 연결했다. 아키텍처 9장의 할당 요구사항이 모두 하나 이상의 FUNC에 닿는다: SWR-I-001~003, I-008은 FUNC-002/004(입력 해석), SWR-L-001, Q-001~003, C-001~004는 MOD-005 및 전체 규칙(1장)과 CI 게이트. `trace.csv`의 `design` 열에 `MOD-xxx`를 덧붙여 갱신한다.
@@ -264,3 +264,4 @@ return status
 |---|---|
 | 2026-11-27 | 초안 (이터레이션 1) |
 | 2026-11-27 | 구현 중 보조 함수 FUNC-007~009, 015, 035, 036, 043 추가(14장) |
+| 2026-11-27 | 단위 테스트 단계에서 `child_lock`의 도달 불가능한 상태 분기를 제거하고 합산 방식으로 변경(8장, DD-D5) |
