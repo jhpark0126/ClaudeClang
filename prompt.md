@@ -106,3 +106,12 @@
 - `.clang-format`과 `ci/format_check.sh`, 요구사항 커버리지 게이트 `ci/requirement_coverage.sh`(요구사항 CSV, 추적 CSV, 완료 이터레이션 기반) 추가. 주석률 기준은 권고값 20%.
 - 게이트 자가 검증 32/32 통과. 분석 가정과 OEM 질의(Q1~Q12)는 `docs/requirements/oem-swr-001-review.md`, 계획은 `docs/plan/iteration-plan.md`.
 - 공개 저장소에 OEM 사양서 docx를 포함함(사용자 승인).
+
+## 13. 이터레이션 1 분석 단계
+**프롬프트:** 현재까지 진행중이던 작업 알려주고, 이어서 진행해 / 권고안대로 진행해, 재리뷰 결과 나오면 이어서 해
+
+**답변 요약:**
+- 상태 확인: 이터 0은 `feature/iteration-0`에 푸시됨(PR 미생성, `gh` 없음). `feature/iteration-1`에서 이터 1(SR-001~004, FR-007) 분석 시작.
+- `software-requirements.md`(QM·인터페이스·제한·품질·제약), `safety-requirements.md`(SSR-001~027) 작성. 1차 리뷰 반려(27건)를 조치하고 가정 A-16~A-20, Q13~Q17 추가.
+- 사용자 결정: 추적 매트릭스 하위 열은 각 단계 게이트에서 채움(권고안), 새 가정 A-16~A-20 승인. 체크리스트 REQ-11에 반영.
+- 재리뷰 진행 중.
