@@ -26,6 +26,10 @@ jobs:
               git {
                 id('claudeclang-git')
                 remote('https://github.com/jhpark0126/ClaudeClang.git')
+                traits {
+                  // 이 trait이 없으면 어떤 브랜치도 발견되지 않는다.
+                  gitBranchDiscovery()
+                }
               }
             }
           }
