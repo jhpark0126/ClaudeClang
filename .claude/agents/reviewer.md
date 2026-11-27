@@ -1,6 +1,7 @@
 ---
 name: reviewer
 description: Use when a development phase (requirements, architecture, detailed design, implementation, unit test, integration test) is finished and its work product must be reviewed before the next phase may start. Applies the review skill with per-work-product checklists and blocks the phase gate until every nonconformity is resolved. 리뷰, 단계 완료 검토, 부적합 사항.
+model: haiku
 tools: Read, Grep, Glob, Bash, Write
 skills:
   - review
