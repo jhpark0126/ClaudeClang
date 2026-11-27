@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/check-metrics.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

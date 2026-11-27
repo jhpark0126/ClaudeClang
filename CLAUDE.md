@@ -2,7 +2,7 @@
 
 ## 프로젝트 개요
 - 저장소: https://github.com/jhpark0126/ClaudeClang
-- 현재 상태: 초기 단계. 소스 코드, Dockerfile, CI 설정은 아직 없다.
+- 현재 상태: 개발 환경과 CI는 구성되었고, 제품 소스 코드(`src/`)는 아직 없다.
 
 ## 작업 규칙
 - 사용자에게 보이는 답변은 모두 한국어로 작성한다. 코드, 명령어, 파일 경로는 원문 그대로 둔다.
@@ -66,7 +66,7 @@
 
 ### 2.3 소스코드 메트릭
 - 순환복잡도 **10 이하**, 함수 길이 **80라인 이하**.
-- **Lizard**로 검사한다. **구현이 끝날 때 Hook으로 검사**한다.
+- **Lizard**로 검사한다. **구현이 끝날 때 Hook으로 검사**한다: `.claude/settings.json`의 Stop 훅이 `scripts/hooks/check-metrics.sh`를 실행하고, 위반하면 종료를 막고 위반 내용을 돌려준다. 기준값은 `ci/metrics.sh`에서만 바꾼다.
 
 ### 2.4 주석 (Human in the Loop)
 - 주석은 **Doxygen** 형식으로 쓴다.
@@ -121,21 +121,30 @@
 ### 빌드 환경 (Docker)
 - **개발 빌드와 CI 빌드는 같은 Docker 이미지**를 사용한다.
 - 이미지 이름: `ClaudeCLangBuild` 를 의미하며, Docker 이미지 이름은 소문자만 허용하므로 실제 태그는 **`claudeclangbuild`** 로 한다.
-- 위 도구를 모두 이미지에 설치하고 버전을 고정한다.
-- 현재 상태: 아직 만들지 않았다 (`docker/Dockerfile` 예정).
+- 위 도구를 모두 이미지에 설치한다 (`docker/Dockerfile`, LLVM 버전은 빌드 인자 `LLVM_VERSION`, 현재 22).
+- 이미지 만들기: `bash scripts/build-image.sh`
+- 개발 중 실행: `bash scripts/dev.sh <명령>` (예: `bash scripts/dev.sh bash ci/all.sh`로 CI 게이트 전체를 로컬에서 실행)
+- 설치된 도구와 버전 확인: `bash scripts/dev.sh tool-versions`
+- 빌드는 `CMakeLists.txt`(CMake + Ninja)이고, 시험 묶음은 `test/tdd`, `test/unit`, `test/integration`이 각각 별도 실행 파일이다.
 
 ---
 
 ## 5. CI 환경
 - **Jenkins 안정화(LTS) 버전**을 사용하고, 이 PC의 **Docker 위에서 실행**한다. 포트는 **8080**.
 - 필요한 플러그인을 설치해 두고, **테스트·정적 분석 등의 결과를 플러그인에서 확인**할 수 있게 한다.
-- CI 파이프라인은 `claudeclangbuild` 이미지 안에서 빌드하고, 2장의 품질 기준을 검사해 하나라도 어기면 실패시킨다.
-- 현재 상태: 아직 구성하지 않았다 (`Jenkinsfile`, Jenkins 컨테이너 예정).
+- CI 파이프라인(`Jenkinsfile`)은 `claudeclangbuild` 이미지 안에서 `ci/*.sh` 게이트를 실행하고, 2장의 품질 기준을 하나라도 어기면 실패시킨다.
+- Jenkins 실행·관리: `bash scripts/jenkins.sh <up|down|logs|status>`. 관리자 ID는 `admin`, 비밀번호는 `docker/.env`(git에 올라가지 않음).
+- 결과 확인: Jenkins의 테스트 결과(JUnit), 정적 분석(Warnings NG의 Cppcheck), 커버리지(Coverage 플러그인), HTML 리포트(단위 MC/DC, 통합 함수 커버리지, Lizard, Doxygen).
+- 게이트 자가 검증: `bash scripts/dev.sh bash ci/selftest/selftest.sh` (정상 샘플은 통과, 망가뜨린 샘플은 각 게이트가 실패하는지 확인).
 
 ---
 
 ## 폴더 구조
 - `.claude/skills/` — 프로젝트 전용 스킬. 스킬마다 하위 폴더를 만들고 그 안에 `SKILL.md`를 둔다.
 - `.claude/agents/` — 프로젝트 전용 서브에이전트. 현재: `reviewer`(단계별 산출물 리뷰, 단계 게이트).
-- `test/tdd/`, `test/unit/` — TDD 테스트와 단위 테스트 (분리, 예정)
+- `include/`, `src/` — 제품 코드 (공개 헤더, 구현)
+- `test/tdd/`, `test/unit/`, `test/integration/` — TDD 테스트, 단위 테스트, 통합 테스트 (서로 섞지 않는다)
+- `ci/` — CI 게이트 스크립트 (로컬과 Jenkins가 같이 사용), `ci/selftest/` 게이트 자가 검증
+- `docker/` — 빌드 이미지(`Dockerfile`), Jenkins 이미지와 설정(`jenkins/`), `docker-compose.yml`
+- `scripts/` — 이미지 빌드, 개발 컨테이너 실행, Jenkins 관리, Hook
 - `docs/` — 요구사항, 설계, 리뷰 기록 (`docs/reviews/`)
